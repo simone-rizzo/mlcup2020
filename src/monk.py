@@ -17,7 +17,7 @@ class MonkModel(nn.Module):
 
 def train(model, epochs):
     criterion = nn.MSELoss(reduction='sum')
-    optimizer = optim.SGD(model.parameters(), lr=1e-4)
+    optimizer = nn.optim.SGD(model.parameters(), lr=1e-4)
 
     for t in range(epochs):
         # Forward pass: Compute predicted y by passing x to the model
