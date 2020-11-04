@@ -17,19 +17,20 @@ class MonkModel(nn.Module):
         return x
 
 
-def train(model, epochs, ds):
-    criterion = nn.MSELoss(reduction='sum')
+def train(model, epochs, dataset):
+    criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=1e-4)
-    input, y = ds
+    input, y = dataset
     for t in range(epochs):
         # Forward pass: Compute predicted y by passing x to the model
         i = 0
         for x in input:
             y_pred = model(x)
             # Compute and print loss
-            loss = criterion(y_pred, y[i])
-            if t % 100 == 99:
-                print(t, loss.item())
+            y_dataset = y[i]
+            loss = criterion(y_pred, y_dataset)
+            # if t % 100 == 99:
+            print(t, loss.item())
 
             # Zero gradients, perform a backward pass, and update the weights.
             optimizer.zero_grad()
@@ -55,7 +56,9 @@ def read_data():
     xy = np.loadtxt('../monk/monks-1.train', dtype=str, delimiter=" ", usecols=(1, 2, 3, 4, 5, 6, 7))
     xy = xy.astype(dtype=np.float32)
     x = torch.from_numpy(xy[:, 1:])
+    x.requires_grad = True
     y = torch.from_numpy(xy[:, 0])
+    y.requires_grad = True
     return x, y
 
 
@@ -63,5 +66,5 @@ def read_data():
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ds = read_data()
 model = MonkModel(6, 3, 1).to(device=device)
-train(model, 50, ds)
+train(model, 1, ds)
 print(model(ds[0][0]))
