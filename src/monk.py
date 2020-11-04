@@ -40,9 +40,17 @@ def test():
 
 
 def read_data():
-    data = pd.read_csv("monk/monks-1.train", header=None, delimiter=r"\s+")
+    data = pd.read_csv("../monk/monks-1.train", header=None, delimiter=r"\s+")
     data = data.drop(axis=1, columns=7)
-    return data 
+    l = list()
+    lenght = data.__len__()
+    for i in range(lenght):
+        input = data.iloc[i, data.columns != 0]
+        out = data.iloc[i, 0]
+        l.append((input, out))
+    return l
 
 
-print(read_data())
+dataset = read_data()
+for x, y in dataset:
+    print(y)
