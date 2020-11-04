@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 import pandas as pd
 import numpy as np
+import torch.optim as optim
 
 class MonkModel(nn.Module):
     def __init__(self, D_in, H, D_out):
@@ -16,23 +17,25 @@ class MonkModel(nn.Module):
         return x
 
 
-def train(model, epochs):
+def train(model, epochs, ds):
     criterion = nn.MSELoss(reduction='sum')
-    optimizer = nn.optim.SGD(model.parameters(), lr=1e-4)
-
+    optimizer = optim.SGD(model.parameters(), lr=1e-4)
+    input, y = ds
     for t in range(epochs):
         # Forward pass: Compute predicted y by passing x to the model
-        y_pred = model(x)
+        i = 0
+        for x in input:
+            y_pred = model(x)
+            # Compute and print loss
+            loss = criterion(y_pred, y[i])
+            if t % 100 == 99:
+                print(t, loss.item())
 
-        # Compute and print loss
-        loss = criterion(y_pred, y)
-        if t % 100 == 99:
-            print(t, loss.item())
-
-        # Zero gradients, perform a backward pass, and update the weights.
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # Zero gradients, perform a backward pass, and update the weights.
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            i += 1
     pass
 
 
@@ -58,7 +61,7 @@ def read_data():
 
 # Setting up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-x, y = read_data()
-model = MonkModel(6, 3, 1)
-print(x[0])
-print(model(x[0]))
+ds = read_data()
+model = MonkModel(6, 3, 1).to(device=device)
+train(model, 50, ds)
+print(model(ds[0][0]))
