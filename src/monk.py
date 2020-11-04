@@ -1,7 +1,8 @@
 import torch.nn as nn
+import torch
 import torch.nn.functional as F
 import pandas as pd
-
+import numpy as np
 
 class MonkModel(nn.Module):
     def __init__(self, D_in, H, D_out):
@@ -11,7 +12,7 @@ class MonkModel(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
+        x = self.linear2(x)
         return x
 
 
@@ -40,17 +41,24 @@ def test():
 
 
 def read_data():
-    data = pd.read_csv("../monk/monks-1.train", header=None, delimiter=r"\s+")
+    """data = pd.read_csv("../monk/monks-1.train", header=None, delimiter=r"\s+")
     data = data.drop(axis=1, columns=7)
-    l = list()
-    lenght = data.__len__()
-    for i in range(lenght):
-        input = data.iloc[i, data.columns != 0]
-        out = data.iloc[i, 0]
-        l.append((input, out))
-    return l
+    dataframe_input = data.iloc[:, data.columns != 0]
+    dataframe_output = data.iloc[:, 0]
+    inputs = torch.tensor(dataframe_input.values, device=device)
+    inputs.type(torch.LongTensor)
+    out = torch.tensor(dataframe_output.values, device=device)
+    return inputs, out"""
+    xy = np.loadtxt('../monk/monks-1.train', dtype=str, delimiter=" ", usecols=(1, 2, 3, 4, 5, 6, 7))
+    xy = xy.astype(dtype=np.float32)
+    x = torch.from_numpy(xy[:, 1:])
+    y = torch.from_numpy(xy[:, 0])
+    return x, y
 
 
-dataset = read_data()
-for x, y in dataset:
-    print(y)
+# Setting up the device
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+x, y = read_data()
+model = MonkModel(6, 3, 1)
+print(x[0])
+print(model(x[0]))
