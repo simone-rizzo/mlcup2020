@@ -19,7 +19,7 @@ class MonkModel(nn.Module):
 
 def train(model, epochs, dataset):
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=1e-4)
+    optimizer = optim.SGD(model.parameters(), lr=1e-4, momentum=0.9)
     input, y = dataset
     for t in range(epochs):
         # Forward pass: Compute predicted y by passing x to the model
@@ -27,7 +27,7 @@ def train(model, epochs, dataset):
         for x in input:
             y_pred = model(x)
             # Compute and print loss
-            y_dataset = y[i]
+            y_dataset = y[i]-1
             loss = criterion(y_pred, y_dataset)
             # if t % 100 == 99:
             print(t, loss.item())
@@ -57,7 +57,7 @@ def read_data():
     xy = xy.astype(dtype=np.float32)
     x = torch.from_numpy(xy[:, 1:])
     x.requires_grad = True
-    y = torch.from_numpy(xy[:, 0])
+    y = torch.from_numpy(xy[:, 0:1])
     y.requires_grad = True
     return x, y
 
