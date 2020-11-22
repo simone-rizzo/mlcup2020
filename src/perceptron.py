@@ -14,7 +14,7 @@ class perceptron(BaseEstimator, ClassifierMixin):
         self.LAMBDA = LAMBDA
         self.hiddenUnits = hiddenUnits
         self.activation = activation
-        self.lossFunction =loss
+        self.lossFunction = loss
         self.weightInitialization = weightInitialization
         self.regression = regression
         self.labelThreshold = 0.5
@@ -162,8 +162,8 @@ returns the loss. Two loss functions are available. Specifiy the parameter 'loss
         self.model['bh'] += np.sum(deltaOutput_, axis=0, keepdims=True) * self.ETA
         self.model['bi'] += np.sum(deltaHidden_, axis=0, keepdims=True) * self.ETA
         if self.regression:
-            self.model['bh']/=dataMatrix.shape[0]
-            self.model['bi']/=dataMatrix.shape[0]
+            self.model['bh'] /= dataMatrix.shape[0]
+            self.model['bi'] /= dataMatrix.shape[0]
 
         return deltaWho_, deltaWih_
 
