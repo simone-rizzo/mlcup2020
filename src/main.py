@@ -5,9 +5,6 @@ from load_data import load_monk
 from network import NeuralNetwork
 import matplotlib.pyplot as plt
 
-import pathlib
-print(pathlib.Path().absolute())
-trainData, trainLabels = load_monk(1, 'train', encodeLabel=False)
 defaultParameters = {
     'hidden_units': 3,
     'activation': 'sigm',
@@ -38,16 +35,19 @@ bestParams = {
     'ETA': 0.3,
     'LAMBDA': 0.001,
     'activation': 'sigm',
-    'epochs': 500,
+    'epochs': 413,
     'hidden_units': 4
 }
 defaultParameters['earlyStopping'] = False
 
 total = 0
-for i in range(50):
+n = 100
+monk = 1
+trainData, trainLabels = load_monk(monk, 'train', encodeLabel=False)
+testData, testLabels = load_monk(monk, 'test', encodeLabel=False)
+for i in range(n):
     x = NeuralNetwork(**bestParams)
     x.fit(trainData, trainLabels, )
-    testData, testLabels = load_monk(1, 'test', encodeLabel=False)
     testResults, testAccuracy = x.predict(testData, testLabels, acc_=True)
     # plt.plot(numpy.array(x.losses))
     # plt.plot(numpy.array(x.accuracies))
@@ -55,4 +55,4 @@ for i in range(50):
     print("accuracy test")
     print(testAccuracy)
     total += testAccuracy
-print(f"final {total/50}")
+print(f"final {total/n}")

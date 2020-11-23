@@ -40,6 +40,7 @@ class NeuralNetwork():
 
     def create_model(self):
         """"""
+        # np.random.seed(0)
         if self.weightInitialization == 'xav':
             return{
                 'Wih': np.random.randn(self.inputUnits, self.hidden_units)*np.sqrt(1/self.hidden_units),
@@ -85,31 +86,28 @@ class NeuralNetwork():
         oo_ = self.activation.function(ho_)
         return hh_, oo_
 
-    def backProp(self, labelMatrix, hh_, oo_):
+    def backpropagation(self, dataMatrix, labelMatrix, hh_, oo_, prevDeltaWho_, prevDeltaWih_):
         """"""
         difference = labelMatrix - oo_
-        if self.regression:
-            from sklearn.preprocessing import normalize
-            # output doesn't passes through nonlinear function for regression
-            deltaOutput_ = normalize(difference, axis=1, norm='l1')
 
-        else:
-            deriv = self.activation.derivative(oo_)
-            deltaOutput_ = difference * deriv
+        # o_k * (1 - o_k)(t_k - o_k)
+        deriv = self.activation.derivative(oo_)
+        deltaOutput_ = difference * deriv
 
         deriv = self.activation.derivative(hh_)
         deltaHidden_ = deltaOutput_.dot(self.model['Who'].T) * deriv
-        return deltaOutput_, deltaHidden_
 
-    def updateWeights(self, dataMatrix, hh_, deltaOutput_, deltaHidden_, prevDeltaWho_, prevDeltaWih_):
-        """"""
-        deltaWho_ = hh_.T.dot(deltaOutput_) * self.ETA
+        # if self.regression:
+        #     from sklearn.preprocessing import normalize
+        #     # output doesn't passes through nonlinear function for regression
+        #     deltaOutput_ = normalize(difference, axis=1, norm='l1')
+
         # learningrate factor - regularization facor + momentum factor
-        otherUpdatesWho = self.ETA * \
-            self.model['Who'] * (-self.LAMBDA) + self.ALPHA * prevDeltaWho_
+        deltaWho_ = hh_.T.dot(deltaOutput_) * self.ETA
+        otherUpdatesWho = self.model['Who'] * (-self.LAMBDA) + self.ALPHA * prevDeltaWho_
         deltaWih_ = dataMatrix.T.dot(deltaHidden_) * self.ETA
-        otherUpdatesWih = self.ETA * \
-            self.model['Wih'] * (-self.LAMBDA) + self.ALPHA * prevDeltaWih_
+        otherUpdatesWih = self.model['Wih'] * (-self.LAMBDA) + self.ALPHA * prevDeltaWih_
+
         if self.regression:
             deltaWho_ = deltaWho_/dataMatrix.shape[0]
             deltaWih_ = deltaWih_ / dataMatrix.shape[0]
@@ -157,20 +155,19 @@ class NeuralNetwork():
         for iteration in range(self.epochs):
             print("iteration {}/{}".format(iteration + 1, self.epochs), end="\r")
             hh, oo = self.feedforward(features)
-            deltaOutput, deltaHidden = self.backProp(labels, hh, oo)
             prevDeltaWih = deltaWih
             prevDeltaWho = deltaWho
-            deltaWho, deltaWih = self.updateWeights(
-                features, hh, deltaOutput, deltaHidden, prevDeltaWho, prevDeltaWih)
+            deltaWho, deltaWih = self.backpropagation(
+                features, labels, hh, oo, prevDeltaWho, prevDeltaWih)
+
             epochLoss = self.get_loss(labels, oo)
             self.losses.append(epochLoss)
+
             if not self.regression:
                 epochAccuracy = self.get_accuracy(labels, oo)
                 self.accuracies.append(epochAccuracy)
 
             if validationFeatures is not None:
-                assert len(validationFeatures) == len(
-                    validationLabels), "Length of validation features and validation labels must always be the same"
                 validationResults = self.predict(
                     validationFeatures, acc_=False, fromVal=True)
                 self.validationLosses.append(self.get_loss(
@@ -178,23 +175,24 @@ class NeuralNetwork():
                 if not self.regression:
                     self.validationAccuracies.append(self.get_accuracy(
                         validationLabels, validationResults))
-            if self.earlyStopping:
-                if iteration > 0:
-                    if comingFromGridSearch:
-                        self.newEpochNotification = False
-                    lossDecrement = (
-                        self.losses[iteration-1]-self.losses[iteration])/self.losses[iteration-1]
-                    if lossDecrement < self.tolerance:
-                        patience -= 1
-                        if patience == 0:
-                            if earlyStoppingLog:  # researcher mode ;D
-                                print("The algorithm has run out of patience. \nFinishing due to early stopping on epoch {}. \n PS. Try decreasing 'tolerance' or increasing 'patience'".format(
-                                    iteration))
-                            self.newEpochNotification = True
-                            self.bestEpoch = iteration
-                            break
-                    else:
-                        patience = self.patience
+
+            # if self.earlyStopping:
+            #     if iteration > 0:
+            #         if comingFromGridSearch:
+            #             self.newEpochNotification = False
+            #         lossDecrement = (
+            #             self.losses[iteration-1]-self.losses[iteration])/self.losses[iteration-1]
+            #         if lossDecrement < self.tolerance:
+            #             patience -= 1
+            #             if patience == 0:
+            #                 if earlyStoppingLog:  # researcher mode ;D
+            #                     print("The algorithm has run out of patience. \nFinishing due to early stopping on epoch {}. \n PS. Try decreasing 'tolerance' or increasing 'patience'".format(
+            #                         iteration))
+            #                 self.newEpochNotification = True
+            #                 self.bestEpoch = iteration
+            #                 break
+            #         else:
+            #             patience = self.patience
 
 
 class ActFunctions:
