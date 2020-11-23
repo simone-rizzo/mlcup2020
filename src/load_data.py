@@ -1,7 +1,3 @@
-#
-#  Created by Abhinav Dwivedi on 25/01/2019.
-#  Copyright © 2019 Abhinav Dwivedi. All rights reserved.
-#
 import numpy as np
 import random
 import operator

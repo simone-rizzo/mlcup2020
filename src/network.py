@@ -1,8 +1,3 @@
-#
-#  Created by Abhinav Dwivedi on 25/01/2019.
-#  Copyright © 2019 Abhinav Dwivedi. All rights reserved.
-#
-
 import math
 import pdb
 import numpy as np

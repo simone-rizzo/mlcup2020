@@ -1,8 +1,3 @@
-#
-#  Created by Abhinav Dwivedi on 30/01/2019.
-#  Copyright © 2019 Abhinav Dwivedi. All rights reserved.
-#
-
 from sklearn.model_selection import train_test_split
 from itertools import product
 from network import NeuralNetwork
