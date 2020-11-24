@@ -7,7 +7,7 @@ import random
 import operator
 
 def loadMonk(file_, filetype, encodeLabel=False):
-    filename="../../data/monk/monks-{}.{}".format(file_, filetype)
+    filename="../data/monk/monks-{}.{}".format(file_, filetype)
     def encode(vector, label=False):
         if label:
             twoFeatures = {'0': [1, 0], '1': [0, 1]}

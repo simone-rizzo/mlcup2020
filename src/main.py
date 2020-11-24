@@ -5,7 +5,7 @@ from src.loadData import loadMonk
 from src.perceptron import perceptron
 import matplotlib.pyplot as plt
 
-trainData, trainLabels = loadMonk(1, 'train', encodeLabel=False)
+trainData, trainLabels = loadMonk(3, 'train', encodeLabel=False)
 
 defaultParameters={
     'hiddenUnits':3,
@@ -41,16 +41,16 @@ parameterGridForModelSelection={
  'epochs': 413,
  'hiddenUnits': 4
 }"""
-bestParams = {
+bestParams = { #for monk 3 0.9722
  'ALPHA': 0.8,
  'ETA': 0.1,
- 'LAMBDA': 0.001,
+ 'LAMBDA': 0.1,
  'activation': 'sigm',
  'epochs': 400,
  'hiddenUnits': 4
 }
 defaultParameters['earlyStopping'] = False
-testData, testLabels = loadMonk(1, 'test', encodeLabel=False)
+testData, testLabels = loadMonk(3, 'test', encodeLabel=False)
 x = perceptron(**defaultParameters)
 x.set_params(**bestParams)
 x.fit(trainData, trainLabels)
