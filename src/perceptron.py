@@ -35,7 +35,7 @@ class perceptron(BaseEstimator, ClassifierMixin):
 
     def createModel(self):
         """Returns the structure of the network in form of a dict."""
-        np.random.seed(self.randomSeed)    
+        np.random.seed(self.randomSeed)
         if self.weightInitialization=='xav':
             return{
                 'Wih':np.random.randn(self.inputUnits,self.hiddenUnits)*np.sqrt(1/self.hiddenUnits),
@@ -204,7 +204,7 @@ returns the loss. Two loss functions are available. Specifiy the parameter 'loss
             deltaOutput, deltaHidden = self.backProp(labels, hh, oo)
             prevDeltaWih = deltaWih
             prevDeltaWho = deltaWho
-            deltaWho, deltaWih = self.updateWeights(features, hh, deltaOutput, deltaHidden, prevDeltaWho,prevDeltaWih)
+            deltaWho, deltaWih = self.updateWeights(features, hh, deltaOutput, deltaHidden, prevDeltaWho, prevDeltaWih)
             epochLoss = self.scoreTraining(labels, oo, loss=True)
             self.losses.append(epochLoss)
             if not self.regression:
