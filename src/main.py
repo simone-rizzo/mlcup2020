@@ -33,26 +33,30 @@ parameterGridForModelSelection={
 }
 # top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, trainData, trainLabels, winnerCriteria="meanLosses", validationSplit=0.3, log=False, topn=5)
 # bestParams = top5BestParams[0]['params']
-bestParams = {
+"""bestParams = {
  'ALPHA': 0.5,
  'ETA': 0.3,
  'LAMBDA': 0.001,
  'activation': 'sigm',
  'epochs': 413,
  'hiddenUnits': 4
+}"""
+bestParams = {
+ 'ALPHA': 0.8,
+ 'ETA': 0.1,
+ 'LAMBDA': 0.001,
+ 'activation': 'sigm',
+ 'epochs': 400,
+ 'hiddenUnits': 4
 }
 defaultParameters['earlyStopping'] = False
 testData, testLabels = loadMonk(1, 'test', encodeLabel=False)
-total = 0
-for i in range(100):
-    x = perceptron(**defaultParameters)
-    x.set_params(**bestParams)
-    x.fit(trainData, trainLabels)
-    testResults, testAccuracy = x.predict(testData, testLabels, acc_=True)
-    print("accuracy")
-    print(testAccuracy)
-    total += testAccuracy
-"""plt.plot(numpy.array(x.losses))
+x = perceptron(**defaultParameters)
+x.set_params(**bestParams)
+x.fit(trainData, trainLabels)
+testResults, testAccuracy = x.predict(testData, testLabels, acc_=True)
+print("accuracy")
+print(testAccuracy)
+plt.plot(numpy.array(x.losses))
 plt.plot(numpy.array(x.accuracies))
-plt.show()"""
-print(f"final {total/100}")
+plt.show()
