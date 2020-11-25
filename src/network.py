@@ -1,5 +1,3 @@
-import math
-import pdb
 import numpy as np
 from sklearn.metrics import accuracy_score
 
@@ -7,171 +5,169 @@ from sklearn.metrics import accuracy_score
 class NeuralNetwork():
     """"""
 
-    def __init__(self, hidden_units, activation, ETA, ALPHA, LAMBDA, weightInitialization='xav', epochs=500, earlyStopping=False, tolerance=1e-3, patience=None, loss="MEE", regression=False):
+    def __init__(self, hidden_units, activation, ETA, ALPHA, LAMBDA, weight_init='xav', epochs=500, early_stopping=False, tolerance=1e-3, patience=None, loss="MEE", regression=False):
         self.ETA = ETA
         self.ALPHA = ALPHA
         self.LAMBDA = LAMBDA
-        self.loss_fun = loss
-        self.hidden_units = hidden_units
-        self.activation = ActFunctions(activation)
-        self.weightInitialization = weightInitialization
-        self.regression = regression
-        self.labelThreshold = 0.5
+        self.loss = loss
         self.epochs = epochs
-        self.earlyStopping = earlyStopping
-        self.validationAccuracies = "The model is NOT trained with validation"
-        self.validationLosses = "The model is NOT trained with validation"
+        self.hidden_units = hidden_units
+        self.weight_init = weight_init
+        self.regression = regression
+        self.early_stopping = early_stopping
+        self.activation = ActFunctions(activation)
 
-        if self.earlyStopping:
-            assert patience is not None, "Please provide the 'patience' as number of deterioration epochs."
-            self.tolerance = tolerance
-            self.patience = patience
-        else:
-            self.patience = None
-            self.tolerance = None
+        # if self.early_stopping:
+        #     assert patience is not None, "Please provide the 'patience' as number of deterioration epochs."
+        #     self.tolerance = tolerance
+        #     self.patience = patience
+        # else:
+        #     self.patience = None
+        #     self.tolerance = None
 
-        assert self.weightInitialization in ['xav', 'he', 'type1']
-        assert self.loss_fun in ['MSE', 'MEE']
+        assert self.weight_init in ['xav', 'he', 'type1']
+        assert self.loss in ['MSE', 'MEE']
 
-    def create_model(self):
+    def create_model(self, train_data, train_label):
         """"""
         # np.random.seed(0)
-        if self.weightInitialization == 'xav':
+        self.input_units = train_data.shape[1]
+        self.output_units = train_label.shape[1]
+        
+        if self.weight_init == 'xav':
             return{
-                'Wih': np.random.randn(self.inputUnits, self.hidden_units)*np.sqrt(1/self.hidden_units),
-                'bi': np.random.randn(1, self.hidden_units),
-                'Who': np.random.randn(self.hidden_units, self.outputUnits)*np.sqrt(1/self.hidden_units),
-                'bh': np.random.randn(1, self.outputUnits)
+                'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(1/self.hidden_units),
+                'b_h': np.random.randn(1, self.hidden_units),
+                'W_ho': np.random.randn(self.hidden_units, self.output_units)*np.sqrt(1/self.hidden_units),
+                'b_o': np.random.randn(1, self.output_units)
             }
-        elif self.weightInitialization == 'he':
+        elif self.weight_init == 'he':
             return{
-                'Wih': np.random.randn(self.inputUnits, self.hidden_units)*np.sqrt(2/self.hidden_units),
-                'Who': np.random.randn(self.hidden_units, self.outputUnits)*np.sqrt(2/self.hidden_units),
-                'bi': np.random.randn(1, self.hidden_units),
-                'bh': np.random.randn(1, self.outputUnits)
+                'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(2/self.hidden_units),
+                'W_ho': np.random.randn(self.hidden_units, self.output_units)*np.sqrt(2/self.hidden_units),
+                'b_h': np.random.randn(1, self.hidden_units),
+                'b_o': np.random.randn(1, self.output_units)
             }
-        elif self.weightInitialization == 'type1':
+        elif self.weight_init == 'type1':
             return{
-                'Wih': np.random.randn(self.inputUnits, self.hidden_units)*np.sqrt(2/(self.hidden_units+self.inputUnits)),
-                'Who': np.random.randn(self.hidden_units, self.outputUnits)*np.sqrt(2/(self.hidden_units+self.outputUnits)),
-                'bi': np.random.randn(1, self.hidden_units),
-                'bh': np.random.randn(1, self.outputUnits)
+                'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(2/(self.hidden_units+self.input_units)),
+                'W_ho': np.random.randn(self.hidden_units, self.output_units)*np.sqrt(2/(self.hidden_units+self.output_units)),
+                'b_h': np.random.randn(1, self.hidden_units),
+                'b_o': np.random.randn(1, self.output_units)
             }
 
-    def get_loss(self, yTrue, yPred):
+    def get_loss(self, y_true, y_pred):
         """"""
-        if self.loss_fun == "MSE":
-            return np.mean(np.square(yTrue - yPred))
-        elif self.loss_fun == "MEE":
-            return np.mean(np.sqrt(np.sum(np.square(yTrue - yPred), axis=1)))
+        if self.loss == "MSE":
+            return np.mean(np.square(y_true - y_pred))
+        elif self.loss == "MEE":
+            return np.mean(np.sqrt(np.sum(np.square(y_true - y_pred), axis=1)))
 
     def get_accuracy(self, y_true, y_pred):
         """"""
         if not self.regression:
             y_pred = np.around(y_pred)
-        return accuracy_score(y_pred, y_true)
+        accuracy = np.sum([1 if pred == true else 0 for pred, true in zip(y_pred, y_true)])/len(y_true)
+        return accuracy
 
-    def feedforward(self, dataMatrix):
+    def feedforward(self, data):
         """"""
-        ih_ = np.dot(dataMatrix, self.model['Wih']) + self.model['bi']  # W*X+b
-        hh_ = self.activation.function(ih_)  # 𝝈
-        ho_ = np.dot(hh_, self.model['Who']) + self.model['bh']  # W*X1+bh
+        ih_ = np.dot(data, self.model['W_ih']) + self.model['b_h']
+        hh_ = self.activation.function(ih_)
+        ho_ = np.dot(hh_, self.model['W_ho']) + self.model['b_o']
         if self.regression:
             return hh_, ho_
         oo_ = self.activation.function(ho_)
         return hh_, oo_
 
-    def backpropagation(self, dataMatrix, labelMatrix, hh_, oo_, prevDeltaWho_, prevDeltaWih_):
+    def backpropagation(self, data, label, hh_, oo_, old_delta_out, old_delta_hid):
         """"""
-        difference = labelMatrix - oo_
+        difference = label - oo_
 
         # o_k * (1 - o_k)(t_k - o_k)
         deriv = self.activation.derivative(oo_)
-        deltaOutput_ = difference * deriv
+        delta_out = difference * deriv
 
         deriv = self.activation.derivative(hh_)
-        deltaHidden_ = deltaOutput_.dot(self.model['Who'].T) * deriv
+        delta_hid = delta_out.dot(self.model['W_ho'].T) * deriv
 
         # if self.regression:
         #     from sklearn.preprocessing import normalize
         #     # output doesn't passes through nonlinear function for regression
-        #     deltaOutput_ = normalize(difference, axis=1, norm='l1')
+        #     delta_out = normalize(difference, axis=1, norm='l1')
 
         # learningrate factor - regularization facor + momentum factor
-        deltaWho_ = hh_.T.dot(deltaOutput_) * self.ETA
-        otherUpdatesWho = self.model['Who'] * (-self.LAMBDA) + self.ALPHA * prevDeltaWho_
-        deltaWih_ = dataMatrix.T.dot(deltaHidden_) * self.ETA
-        otherUpdatesWih = self.model['Wih'] * (-self.LAMBDA) + self.ALPHA * prevDeltaWih_
+        delta_out_ = hh_.T.dot(delta_out) * self.ETA
+        otherUpdatesW_ho = self.ETA * self.model['W_ho'] * (-self.LAMBDA) + self.ALPHA * old_delta_out
+        delta_hid_ = data.T.dot(delta_hid) * self.ETA
+        otherUpdatesW_ih = self.ETA * self.model['W_ih'] * (-self.LAMBDA) + self.ALPHA * old_delta_hid
 
         if self.regression:
-            deltaWho_ = deltaWho_/dataMatrix.shape[0]
-            deltaWih_ = deltaWih_ / dataMatrix.shape[0]
+            delta_out_ = delta_out_/data.shape[0]
+            delta_hid_ = delta_hid_ / data.shape[0]
 
-        self.model['Who'] += deltaWho_ + otherUpdatesWho
-        self.model['Wih'] += deltaWih_ + otherUpdatesWih
-        self.model['bh'] += np.sum(deltaOutput_,
+        self.model['W_ho'] += delta_out_ + otherUpdatesW_ho
+        self.model['W_ih'] += delta_hid_ + otherUpdatesW_ih
+        self.model['b_o'] += np.sum(delta_out,
                                    axis=0, keepdims=True) * self.ETA
-        self.model['bi'] += np.sum(deltaHidden_,
+        self.model['b_h'] += np.sum(delta_hid,
                                    axis=0, keepdims=True) * self.ETA
         if self.regression:
-            self.model['bh'] /= dataMatrix.shape[0]
-            self.model['bi'] /= dataMatrix.shape[0]
+            self.model['b_o'] /= data.shape[0]
+            self.model['b_h'] /= data.shape[0]
 
-        return deltaWho_, deltaWih_
+        return delta_out_, delta_hid_
 
-    def predict(self, dataMatrix, labels=None, acc_=False, fromVal=False):
+    def predict(self, data, labels=None, acc_=False):
         """"""
-        _, result = self.feedforward(dataMatrix)
+        _, result = self.feedforward(data)
         if acc_:
             accuracies = []
-            for i in range(dataMatrix.shape[0]):
-                assert labels is not None, "true values (as labels) must be provided for to calculate accuracy"
+            for i in range(data.shape[0]):
+                assert labels is not None, "Labels are not provided. Can't calculate accuracy."
                 accuracies.append(self.get_accuracy(
                     labels[i], result[i]))
-            return result, np.sum(accuracies)/dataMatrix.shape[0]
-        if fromVal or self.regression:
+            return result, np.sum(accuracies)/data.shape[0]
+
+        if self.regression:
             return result
         else:
             return np.around(result)
 
-    def fit(self, features, labels, validationFeatures=None, validationLabels=None, realTimePlotting=False, earlyStoppingLog=True, comingFromGridSearch=False):
+    def fit(self, train_data, train_label, valid_data=None, valid_label=None, realTimePlotting=False, early_stoppingLog=True, comingFromGridSearch=False):
         """"""
-        self.inputUnits = features.shape[1]
-        self.outputUnits = labels.shape[1]
-        self.model = self.create_model()
-        self.accuracies = []
-        self.losses = []
-        if validationFeatures is not None:
-            self.validationAccuracies = []
-            self.validationLosses = []
-        deltaWho = 0
-        deltaWih = 0
-        patience = self.patience
+        self.model = self.create_model(train_data, train_label)
+        self.train_accuracies = []
+        self.train_losses = []
+        self.valid_accuracies = []
+        self.valid_losses = []
+
+        delta_out = 0
+        delta_hid = 0
+
         for iteration in range(self.epochs):
             print("iteration {}/{}".format(iteration + 1, self.epochs), end="\r")
-            hh, oo = self.feedforward(features)
-            prevDeltaWih = deltaWih
-            prevDeltaWho = deltaWho
-            deltaWho, deltaWih = self.backpropagation(
-                features, labels, hh, oo, prevDeltaWho, prevDeltaWih)
+            hh, oo = self.feedforward(train_data)
+            old_delta_out = delta_out
+            old_delta_hid = delta_hid
+            delta_out, delta_hid = self.backpropagation(
+                train_data, train_label, hh, oo, old_delta_out, old_delta_hid)
 
-            epochLoss = self.get_loss(labels, oo)
-            self.losses.append(epochLoss)
+            epochLoss = self.get_loss(train_label, oo)
+            self.train_losses.append(epochLoss)
 
             if not self.regression:
-                epochAccuracy = self.get_accuracy(labels, oo)
-                self.accuracies.append(epochAccuracy)
+                self.train_accuracies.append(self.get_accuracy(train_label, oo))
 
-            if validationFeatures is not None:
-                validationResults = self.predict(
-                    validationFeatures, acc_=False, fromVal=True)
-                self.validationLosses.append(self.get_loss(
-                    validationLabels, validationResults))
+            if valid_data is not None:
+                valid_result = self.predict(valid_data, acc_=False, fromVal=True)
+                self.valid_losses.append(self.get_loss(valid_label, valid_result))
                 if not self.regression:
-                    self.validationAccuracies.append(self.get_accuracy(
-                        validationLabels, validationResults))
+                    self.valid_accuracies.append(self.get_accuracy(
+                        valid_label, valid_result))
 
-            # if self.earlyStopping:
+            # patience = self.patience
+            # if self.early_stopping:
             #     if iteration > 0:
             #         if comingFromGridSearch:
             #             self.newEpochNotification = False
@@ -180,7 +176,7 @@ class NeuralNetwork():
             #         if lossDecrement < self.tolerance:
             #             patience -= 1
             #             if patience == 0:
-            #                 if earlyStoppingLog:  # researcher mode ;D
+            #                 if early_stoppingLog:  # researcher mode ;D
             #                     print("The algorithm has run out of patience. \nFinishing due to early stopping on epoch {}. \n PS. Try decreasing 'tolerance' or increasing 'patience'".format(
             #                         iteration))
             #                 self.newEpochNotification = True
