@@ -66,8 +66,8 @@ training_inputs = np.array([[1, 0, 0, 1],
                            [1, 0, 1, 1]])
 
 training_outputs = np.array([[0, 1, 1, 0]]).T
-training_inputs, training_outputs = loadMonk(3, 'train', encodeLabel=False)
-training_inputs = np.c_[ np.ones(training_inputs.shape[0]), training_inputs] # aggiungo 1 alla x
+training_inputs, training_outputs = loadMonk(1, 'train', encodeLabel=False)
+training_inputs = np.c_[np.ones(training_inputs.shape[0]), training_inputs] # aggiungo 1 alla x
 np.random.seed(1) #setto il seed
 ETA = 0.1
 EPOCS = 400 #400 per il resto
@@ -75,7 +75,7 @@ LAMBDA = 0.001
 ALPHA = 0.9
 model = myPerceptron(18, 4, 1, EPOCS, ETA, LAMBDA, ALPHA)
 out = model.train(training_inputs, training_outputs)
-testData, testLabels = loadMonk(3, 'test', encodeLabel=False)
+testData, testLabels = loadMonk(1, 'test', encodeLabel=False)
 testData = np.c_[np.ones(testData.shape[0]), testData]
 accuracy = model.predict(testData, testLabels)
 print("test: accuracy")
