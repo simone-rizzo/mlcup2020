@@ -31,12 +31,12 @@ parameterGridForModelSelection = {
 # bestParams = top5BestParams[0]
 # print(bestParams)
 bestParams = {
-    'ALPHA': 0.5,
-    'ETA': 0.3,
+    'ALPHA': 0.8,
+    'ETA': 0.1,
     'LAMBDA': 0.001,
     'activation': 'sigm',
     'epochs': 413,
-    'hidden_units': 4
+    'hidden_units': 0
 }
 defaultParameters['earlyStopping'] = False
 
