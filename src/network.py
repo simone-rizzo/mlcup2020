@@ -98,9 +98,9 @@ class NeuralNetwork():
 
         # learningrate factor - regularization facor + momentum factor
         delta_out_ = hh_.T.dot(delta_out) * self.ETA
-        otherUpdatesW_ho = self.ETA * self.model['W_ho'] * (-self.LAMBDA) + self.ALPHA * old_delta_out
+        otherUpdatesW_ho = self.model['W_ho'] * (-self.LAMBDA) + self.ALPHA * old_delta_out
         delta_hid_ = data.T.dot(delta_hid) * self.ETA
-        otherUpdatesW_ih = self.ETA * self.model['W_ih'] * (-self.LAMBDA) + self.ALPHA * old_delta_hid
+        otherUpdatesW_ih = self.model['W_ih'] * (-self.LAMBDA) + self.ALPHA * old_delta_hid
 
         if self.regression:
             delta_out_ = delta_out_/data.shape[0]

@@ -48,7 +48,7 @@ parameterGridForModelSelection = {
 
 bestParams = {
     'ALPHA': 0.5,
-    'ETA': 0.3,
+    'ETA': 0.1,
     'LAMBDA': 0.001,
     'activation': 'sigm',
     'epochs': 413,
@@ -78,4 +78,4 @@ for i in range(len(top5BestParams)):
     # plt.plot(numpy.array(x.accuracies))
     # plt.show()
 plt.show()"""
-show_single_model(topParam, trainData, trainLabels, testData, testLabels)
+show_single_model(bestParams, trainData, trainLabels, testData, testLabels)
