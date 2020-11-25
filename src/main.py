@@ -19,7 +19,14 @@ defaultParameters = {
     'tolerance': 1e-3,
     'patience': 20
 }
-
+topParam = { #for monk 3 0.9722
+ 'ALPHA': 0.8,
+ 'ETA': 0.1,
+ 'LAMBDA': 0.1,
+ 'activation': 'sigm',
+ 'epochs': 400,
+ 'hiddenUnits': 4
+}
 parameterGridForModelSelection = {
     'hidden_units': [4, 16],
     'activation': ['sigm', 'relu', 'tanh'],
