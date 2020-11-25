@@ -1,9 +1,9 @@
-import numpy
+import numpy as np
 
-from src.abGridSearchCV import abGridSearchCV
-from src.load_data import load_monk
-from src.network import NeuralNetwork
-from src.perceptron import perceptron
+from abGridSearchCV import abGridSearchCV
+from load_data import load_monk
+from network import NeuralNetwork
+from perceptron import perceptron
 import matplotlib.pyplot as plt
 
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
@@ -46,7 +46,7 @@ parameterGridForModelSelection = {
     'ALPHA': [0.2, 0.5, 0.7, 0.9]
 }
 
-bestParams = {
+bestParams = { #97.45% on monk 3
     'ALPHA': 0.5,
     'ETA': 0.1,
     'LAMBDA': 0.001,
@@ -59,7 +59,7 @@ defaultParameters['earlyStopping'] = False
 trainData, trainLabels = load_monk(monk, 'train', encodeLabel=False)
 testData, testLabels = load_monk(monk, 'test', encodeLabel=False)
 
-"""top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, trainData, trainLabels, winnerCriteria="meanLosses", validationSplit=0.3, log=False, topn=6)
+top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, trainData, trainLabels, winnerCriteria="meanValidationLoss", validationSplit=0.3, log=False, topn=6)
 fig, axs = plt.subplots(2, 3)
 r = 0
 c = 0
@@ -79,5 +79,5 @@ for i in range(len(top5BestParams)):
     # plt.plot(numpy.array(x.losses))
     # plt.plot(numpy.array(x.accuracies))
     # plt.show()
-plt.show()"""
-show_single_model(bestParams, trainData, trainLabels, testData, testLabels)
+plt.show()
+# show_single_model(bestParams, trainData, trainLabels, testData, testLabels)

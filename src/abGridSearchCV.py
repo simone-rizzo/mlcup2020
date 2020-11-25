@@ -36,7 +36,6 @@ def abGridSearchCV(defaultParams, paramGrid, features, labels, validationSplit, 
         for index_ in range(len(paramGrid)):
             param[list(paramGrid.keys())[index_]] = val[index_]
         model = NeuralNetwork(**param)
-        # model.set_params(**param)
         model.fit(trainData_, trainLabels_, validationData_, validationLabels_,
                   early_stoppingLog=False, comingFromGridSearch=True)
         meanLoss = np.mean(model.train_losses)
