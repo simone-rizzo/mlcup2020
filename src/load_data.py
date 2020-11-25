@@ -4,7 +4,7 @@ import operator
 
 
 def load_monk(file_, filetype, encodeLabel=False):
-    filename = "data/monk/monks-{}.{}".format(file_, filetype)
+    filename = "../data/monk/monks-{}.{}".format(file_, filetype)
 
     def encode(vector, label=False):
         if label:

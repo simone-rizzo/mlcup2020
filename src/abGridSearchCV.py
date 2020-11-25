@@ -38,9 +38,9 @@ def abGridSearchCV(defaultParams, paramGrid, features, labels, validationSplit, 
         model = NeuralNetwork(**param)
         # model.set_params(**param)
         model.fit(trainData_, trainLabels_, validationData_, validationLabels_,
-                  earlyStoppingLog=False, comingFromGridSearch=True)
-        meanLoss = np.mean(model.losses)
-        meanValidationLoss = np.mean(model.validationLosses)
+                  early_stoppingLog=False, comingFromGridSearch=True)
+        meanLoss = np.mean(model.train_losses)
+        meanValidationLoss = np.mean(model.valid_losses)
         # if model.newEpochNotification:
         # param['epochs']=model.bestEpoch
         tempLog = {

@@ -1,9 +1,9 @@
 import numpy
 
-from abGridSearchCV import abGridSearchCV
-from load_data import load_monk
-from network import NeuralNetwork
-from perceptron import perceptron
+from src.abGridSearchCV import abGridSearchCV
+from src.load_data import load_monk
+from src.network import NeuralNetwork
+from src.perceptron import perceptron
 import matplotlib.pyplot as plt
 
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
@@ -58,8 +58,8 @@ monk = 3
 defaultParameters['earlyStopping'] = False
 trainData, trainLabels = load_monk(monk, 'train', encodeLabel=False)
 testData, testLabels = load_monk(monk, 'test', encodeLabel=False)
-"""
-top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, trainData, trainLabels, winnerCriteria="meanLosses", validationSplit=0.3, log=False, topn=6)
+
+"""top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, trainData, trainLabels, winnerCriteria="meanLosses", validationSplit=0.3, log=False, topn=6)
 fig, axs = plt.subplots(2, 3)
 r = 0
 c = 0
@@ -67,8 +67,10 @@ for i in range(len(top5BestParams)):
     x = NeuralNetwork(**(top5BestParams[i]['params']))
     x.fit(trainData, trainLabels)
     testResults, testAccuracy = x.predict(testData, testLabels, acc_=True)
-    axs[r, c].plot(numpy.array(x.losses))
+    axs[r, c].plot(numpy.array(x.train_losses))
+    # axs[r, c].plot(numpy.array(x.valid_losses), color="green", label="Validation Losses")
     axs[r, c].set_title('N°: '+str(i))
+    print(str(i)+" accuracy: "+str(testAccuracy))
     if c < 2:
         c += 1
     else:

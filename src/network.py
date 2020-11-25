@@ -30,7 +30,7 @@ class NeuralNetwork():
 
     def create_model(self, train_data, train_label):
         """"""
-        # np.random.seed(0)
+        np.random.seed(0)
         self.input_units = train_data.shape[1]
         self.output_units = train_label.shape[1]
         
@@ -160,7 +160,7 @@ class NeuralNetwork():
                 self.train_accuracies.append(self.get_accuracy(train_label, oo))
 
             if valid_data is not None:
-                valid_result = self.predict(valid_data, acc_=False, fromVal=True)
+                valid_result = self.predict(valid_data, acc_=False)
                 self.valid_losses.append(self.get_loss(valid_label, valid_result))
                 if not self.regression:
                     self.valid_accuracies.append(self.get_accuracy(
