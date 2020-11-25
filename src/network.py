@@ -35,7 +35,7 @@ class NeuralNetwork():
 
     def create_model(self):
         """"""
-        # np.random.seed(0)
+        np.random.seed(0)
         if self.weightInitialization == 'xav':
             return{
                 'Wih': np.random.randn(self.inputUnits, self.hidden_units)*np.sqrt(1/self.hidden_units),
