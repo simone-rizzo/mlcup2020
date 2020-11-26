@@ -134,7 +134,7 @@ class NeuralNetwork():
         else:
             return np.around(result)
 
-    def fit(self, train_data, train_label, valid_data=None, valid_label=None, realTimePlotting=False, early_stoppingLog=True, comingFromGridSearch=False):
+    def fit(self, train_data, train_label, valid_data=None, valid_label=None, early_stoppingLog=True, comingFromGridSearch=False):
         """"""
         self.model = self.create_model(train_data, train_label)
         self.train_accuracies = []
