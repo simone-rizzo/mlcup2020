@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score
 class NeuralNetwork():
     """"""
 
-    def __init__(self, hidden_units, activation, ETA, ALPHA, LAMBDA, weight_init='xav', epochs=500, early_stopping=False, tolerance=1e-3, patience=None, loss="MEE", regression=False):
+    def __init__(self, hidden_units, activation, ETA, ALPHA, LAMBDA, weight_init='xav', epochs=500, early_stopping=False, tolerance=1e-3, patience=None, loss="MSE", regression=True):
         self.ETA = ETA
         self.ALPHA = ALPHA
         self.LAMBDA = LAMBDA
@@ -84,16 +84,16 @@ class NeuralNetwork():
         """"""
         difference = label - oo_
 
-        # o_k * (1 - o_k)(t_k - o_k)
+        # Derivative of activation function: o_k * (1 - o_k)(t_k - o_k)
         deriv = self.activation.derivative(oo_)
         delta_out = difference * deriv
 
         deriv = self.activation.derivative(hh_)
         delta_hid = delta_out.dot(self.model['W_ho'].T) * deriv
 
-        # if self.regression:
+        #if self.regression:
         #     from sklearn.preprocessing import normalize
-        #     # output doesn't passes through nonlinear function for regression
+             # output doesn't passes through nonlinear function for regression
         #     delta_out = normalize(difference, axis=1, norm='l1')
 
         # learningrate factor - regularization facor + momentum factor

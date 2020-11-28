@@ -5,6 +5,9 @@ from load_data import load_monk
 from network import NeuralNetwork
 import matplotlib.pyplot as plt
 
+from load_data import load_cup
+
+
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
     model = NeuralNetwork(**param)
     model.fit(traindata, trainlabel)
@@ -64,7 +67,7 @@ bestParams = { #97.45% on monk 3
     'epochs': 413,
     'hidden_units': 4
 }
-monk = 3
+"""monk = 3
 labels = ['Loss', 'Val_loss']
 defaultParameters['earlyStopping'] = False
 trainData, trainLabels = load_monk(monk, 'train', encodeLabel=False)
@@ -96,7 +99,7 @@ for i in range(len(top5BestParams)):
 
 plt.show()
 # show_single_model(bestParams, trainData, trainLabels, testData, testLabels)
-
+"""
 
 """x = [1, 2, 3, 4]
 x2 = [3, 3, 3, 3]
@@ -111,3 +114,4 @@ axs[1].plot(x, label=labels[0])
 plt.legend()
 plt.show()"""
 # show_model_with_validation(bestParams, trainData_, trainLabels_, validationData_, validationLabels_, testData, testLabels)
+load_cup("../data/cup/ML-CUP20-TR.csv")

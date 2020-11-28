@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from abGridSearchCV import abGridSearchCV
 from load_data import load_cup
-from network import NeuralNetwork
+from src.network import NeuralNetwork
 import matplotlib.pyplot as plt
 
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
@@ -26,16 +26,15 @@ def show_model_with_validation(param, train_data, train_labels,validationData_,v
     plt.show()
 
 defaultParameters = {
-    'hidden_units': 4,
-    'activation': 'sigm',
+    'hidden_units': 10,
+    'activation': 'relu',
     'epochs': 500,
-    'ETA': 0.4,
-    'LAMBDA': 0.0,
+    'ETA': 0.5,
+    'LAMBDA': 0.01,
     'loss': "MEE",
-    'ALPHA': 0.9,
+    'ALPHA': 0.5,
     'weight_init': 'xav',
     'regression': True,
-    'earlyStopping': False,
     'tolerance': 1e-3,
     'patience': 20
 }
@@ -50,11 +49,13 @@ parameterGridForModelSelection = {
 }
 
 labels = ['Loss', 'Val_loss']
-train_data, train_labels, valid_data, valid_labels, test_data, test_labels = load_cup('./data/cup/ML-CUP20-TR,csv')
+train_data, train_labels, valid_data, valid_labels, test_data, test_labels = load_cup('../data/cup/ML-CUP20-TR.csv')
 x = NeuralNetwork(**defaultParameters)
 x.fit(train_data, train_labels, valid_data, valid_labels)
-print(f'Loss: {x.get_loss()}')
-print(f'Accuracy: {x.get_accuracy()}')
+print(f'Loss: {x.train_losses}')
+print(f'Train Accuracy: {x.train_accuracies}')
+plt.plot(np.array(x.train_losses))
+plt.show()
 # top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, train_data, train_labels, winnerCriteria="meanValidationLoss", validationSplit=0.3, log=False, topn=9)
 
 # fig, axs = plt.subplots(3, 3)
