@@ -1,8 +1,10 @@
 import numpy as np
 import random
 import operator
+from numpy import linalg as LA
 from numpy import genfromtxt
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import normalize
 
 
 def load_monk(file_, filetype, encodeLabel=False):
@@ -64,6 +66,12 @@ def load_cup(file_name,vl_percentage=0.20, ts_percentage=0.17, ):
     train_labels = my_data[:, -2:] #Keep only last 2 columns
     test_label = ts_data[:, -2:]
     test_data = ts_data[:, :-2]
+    train_data = normalize(train_data, axis=1, norm='l2')
+    train_labels = normalize(train_labels, axis=1, norm='l2')
+    """for i in range(train_labels.shape[0]):
+        riga = train_labels[i]
+        riga = riga.reshape(1, -1)
+        norm = LA.norm(riga, 2)"""
     train_data_, validation_data_, train_labels_, validation_labels_ = train_test_split(train_data, train_labels, test_size = vl_percentage) #Split the TR into TR and Validation
-    return train_data, train_labels, validation_data_, validation_labels_, test_data, test_label
+    return train_data_, train_labels_, validation_data_, validation_labels_, test_data, test_label
 

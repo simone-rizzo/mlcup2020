@@ -4,7 +4,7 @@ from network import NeuralNetwork
 import numpy as np
 
 
-def abGridSearchCV(defaultParams, paramGrid, features, labels, validationSplit, winnerCriteria, log=True, topn=5, logToBeReturned=[]):
+def abGridSearchCV(regression, paramGrid, trainData_, trainLabels_, validationData_, validationLabels_, winnerCriteria, log=True, topn=5, logToBeReturned=[]):
     """
     Returns the log(if log=True) and best parameters for the 'NeuralNetwork' model by evaluating the model on all the combinations of given parameters.
     Usage:
@@ -27,8 +27,6 @@ def abGridSearchCV(defaultParams, paramGrid, features, labels, validationSplit, 
     listParams = list(paramGrid.values())
     winners = []
     allCombinations = list(product(*listParams))
-    trainData_, validationData_, trainLabels_, validationLabels_ = train_test_split(
-        features, labels, test_size=validationSplit)
     for index, val in enumerate(allCombinations):
         print("                        {}/{}".format(index,
                                                      len(allCombinations)), end="\r")
@@ -36,8 +34,10 @@ def abGridSearchCV(defaultParams, paramGrid, features, labels, validationSplit, 
         for index_ in range(len(paramGrid)):
             param[list(paramGrid.keys())[index_]] = val[index_]
         model = NeuralNetwork(**param)
+        model.regression = False
         model.fit(trainData_, trainLabels_, validationData_, validationLabels_,
                   early_stoppingLog=False, comingFromGridSearch=True)
+        
         meanLoss = np.mean(model.train_losses)
         meanValidationLoss = np.mean(model.valid_losses)
         # if model.newEpochNotification:

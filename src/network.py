@@ -91,7 +91,7 @@ class NeuralNetwork():
         deriv = self.activation.derivative(hh_)
         delta_hid = delta_out.dot(self.model['W_ho'].T) * deriv
 
-        #if self.regression:
+        # if self.regression:
         #     from sklearn.preprocessing import normalize
              # output doesn't passes through nonlinear function for regression
         #     delta_out = normalize(difference, axis=1, norm='l1')

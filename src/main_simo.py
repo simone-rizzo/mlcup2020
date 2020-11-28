@@ -5,11 +5,11 @@ from load_data import load_monk
 from network import NeuralNetwork
 import matplotlib.pyplot as plt
 
-from load_data import load_cup
 
 
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
     model = NeuralNetwork(**param)
+    model.regression = False
     model.fit(traindata, trainlabel)
     _, testAccuracy = model.predict(testdata, testlabel, acc_=True)
     fig, ax = plt.subplots()
@@ -53,7 +53,7 @@ topParam = { #for monk 3 0.9722
 }
 parameterGridForModelSelection = {
     'hidden_units': [4],
-    'activation': ['sigm', 'relu', 'tanh'],
+    'activation': ['sigm'],
     'ETA': [0.05, 0.1, 0.2, 0.3],
     'LAMBDA': [0.001, 0.01],
     'ALPHA': [0.5, 0.6, 0.7, 0.9]
@@ -67,14 +67,14 @@ bestParams = { #97.45% on monk 3
     'epochs': 413,
     'hidden_units': 4
 }
-"""monk = 3
+monk = 3
 labels = ['Loss', 'Val_loss']
 defaultParameters['earlyStopping'] = False
 trainData, trainLabels = load_monk(monk, 'train', encodeLabel=False)
 testData, testLabels = load_monk(monk, 'test', encodeLabel=False)
 trainData_, validationData_, trainLabels_, validationLabels_ = train_test_split(
         trainData, trainLabels, test_size=0.3)
-top5BestParams = abGridSearchCV(defaultParameters, parameterGridForModelSelection, trainData, trainLabels, winnerCriteria="meanValidationLoss", validationSplit=0.3, log=False, topn=9)
+top5BestParams = abGridSearchCV(False, parameterGridForModelSelection, trainData_, trainLabels_, validationData_, validationLabels_, winnerCriteria="meanValidationLoss", log=False, topn=9)
 fig, axs = plt.subplots(3, 3)
 r = 0
 c = 0
@@ -99,9 +99,9 @@ for i in range(len(top5BestParams)):
 
 plt.show()
 # show_single_model(bestParams, trainData, trainLabels, testData, testLabels)
-"""
 
-"""x = [1, 2, 3, 4]
+"""
+x = [1, 2, 3, 4]
 x2 = [3, 3, 3, 3]
 
 fig, axs = plt.subplots(1, 2)
@@ -112,6 +112,6 @@ axs[0].set_title(str(bestParams))
 axs[1].plot(x2, label=labels[1])
 axs[1].plot(x, label=labels[0])
 plt.legend()
-plt.show()"""
+plt.show()
 # show_model_with_validation(bestParams, trainData_, trainLabels_, validationData_, validationLabels_, testData, testLabels)
-load_cup("../data/cup/ML-CUP20-TR.csv")
+"""
