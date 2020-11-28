@@ -3,7 +3,6 @@ from sklearn.model_selection import train_test_split
 from abGridSearchCV import abGridSearchCV
 from load_data import load_monk
 from network import NeuralNetwork
-from perceptron import perceptron
 import matplotlib.pyplot as plt
 
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
