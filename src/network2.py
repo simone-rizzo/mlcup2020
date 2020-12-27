@@ -2,6 +2,40 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 
 
+class Layer():
+    def __init__(self, dim_in, dim_out, actfun, weight_init, regression):
+        self.dim_in = dim_in
+        self.dim_out = dim_out
+        self.activation = actfun
+        self.regression = regression
+        if weight_init == 'xav':
+                self.W_ih =  np.random.randn(self.input_units, self.hidden_units)*np.sqrt(1/self.hidden_units)
+                self.b_h = np.random.randn(1, self.hidden_units)
+        elif weight_init == 'he':
+                self.W_ih = np.random.randn(self.input_units, self.hidden_units)*np.sqrt(2/self.hidden_units),
+                self.W_ho = np.random.randn(self.hidden_units, self.output_units)*np.sqrt(2/self.hidden_units)
+
+        elif weight_init == 'type1':
+                self.W_ih = np.random.randn(self.input_units, self.hidden_units)*np.sqrt(2/(self.hidden_units+self.input_units)),
+                self.W_ho = np.random.randn(self.hidden_units, self.output_units)*np.sqrt(2/(self.hidden_units+self.output_units))
+
+    """Compute WX+B and apply the activation function"""
+    def feed_forward(self, data):
+        ih_ = np.dot(data, self.W_ih) + self.b_h
+        hh_ = self.activation.function(ih_)
+        return hh_
+
+    """Compute the BackProp"""
+    def backward(self, delta, outj, xi, old_delta_hid):
+        deriv = self.activation.derivative(outj) #fderiv(netj)
+        delta_hid = delta.dot(self.W_ho.T)*deriv #
+        delta_hid_ = xi.T.dot(delta_hid) * self.ETA
+        other_updatesW_ih = self.W_ih * (-self.LAMBDA) + self.ALPHA * old_delta_hid
+        self.W_ih += delta_hid_+other_updatesW_ih
+        return delta_hid_
+
+
+
 class NeuralNetwork():
     """"""
 
@@ -33,7 +67,7 @@ class NeuralNetwork():
         np.random.seed(0)
         self.input_units = train_data.shape[1]
         self.output_units = train_label.shape[1]
-        
+
         if self.weight_init == 'xav':
             return{
                 'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(1/self.hidden_units),
