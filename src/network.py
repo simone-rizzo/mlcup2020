@@ -125,8 +125,7 @@ class NeuralNetwork():
             accuracies = []
             for i in range(data.shape[0]):
                 assert labels is not None, "Labels are not provided. Can't calculate accuracy."
-                accuracies.append(self.get_accuracy(
-                    labels[i], result[i]))
+                accuracies.append(self.get_accuracy(labels[i], result[i]))
             return result, np.sum(accuracies)/data.shape[0]
 
         if self.regression:

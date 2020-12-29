@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
-from src.abGridSearchCV import abGridSearchCV
+from abGridSearchCV import abGridSearchCV
 from load_data import load_cup
-from src.network import NeuralNetwork
+from network import NeuralNetwork
 import matplotlib.pyplot as plt
 
 def show_single_model(param, traindata, trainlabel, testdata, testlabel):
@@ -49,7 +49,7 @@ parameterGridForModelSelection = {
 }
 
 labels = ['Loss', 'Val_loss']
-train_data, train_labels, valid_data, valid_labels, test_data, test_labels = load_cup('../data/cup/ML-CUP20-TR.csv')
+train_data, train_labels, valid_data, valid_labels, test_data, test_labels = load_cup('./data/cup/ML-CUP20-TR.csv')
 top5_best_params = abGridSearchCV(True, parameterGridForModelSelection, train_data, train_labels, valid_data, valid_labels, winnerCriteria='meanTrainingLoss', log=False, topn=9)
 
 fig, axs = plt.subplots(3, 3)

@@ -8,13 +8,12 @@ from sklearn.preprocessing import normalize
 
 
 def load_monk(file_, filetype, encodeLabel=False):
-    filename = "../data/monk/monks-{}.{}".format(file_, filetype)
+    filename = "./data/monk/monks-{}.{}".format(file_, filetype)
 
     def encode(vector, label=False):
         if label:
             twoFeatures = {'0': [1, 0], '1': [0, 1]}
             return twoFeatures[str(vector)]
-
         else:
             retVector = []
             twoFeatures = {'1': [1, 0], '2': [0, 1]}
@@ -47,7 +46,7 @@ def load_monk(file_, filetype, encodeLabel=False):
             else:
                 label = [label]
             labels.append(label)
-            # breakpoint()
+
         data_ = np.array(data_, dtype='float16')
         labels = np.array(labels, dtype='float16')
 
