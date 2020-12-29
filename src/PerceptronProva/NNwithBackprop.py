@@ -2,12 +2,13 @@ import numpy as np
 
 
 class NeuralNetwork(object):
-    def __init__(self, layers=[2, 10, 1], activations=['sigmoid', 'sigmoid']):
-        assert (len(layers) == len(activations) + 1)
+    def __init__(self, layers=[2, 10, 1], activations=['relu', 'sigmoid']):
+        # assert (len(layers) == len(activations) + 1)
         self.layers = layers
         self.activations = activations
         self.weights = []
         self.biases = []
+        print(len(layers)-1)
         for i in range(len(layers) - 1):
             self.weights.append(np.random.randn(layers[i + 1], layers[i]))
             self.biases.append(np.random.randn(layers[i + 1], 1))
@@ -18,12 +19,11 @@ class NeuralNetwork(object):
         z_s = []
         a_s = [a]
         for i in range(len(self.weights)):
-            activation_function = self.getActivationFunction(self.activations[i])
+            activation_function = self.getActivationFunction(self.activations[0])
             z_s.append(self.weights[i].dot(a) + self.biases[i])
             a = activation_function(z_s[-1])
             a_s.append(a)
         return (z_s, a_s)
-
 
     def backpropagation(self, y, z_s, a_s):
         dw = []  # dC/dW
@@ -33,15 +33,24 @@ class NeuralNetwork(object):
         deltas[-1] = ((y - a_s[-1]) * (self.getDerivitiveActivationFunction(self.activations[-1]))(z_s[-1]))
         # Perform BackPropagation
         for i in reversed(range(len(deltas) - 1)):
-            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * (
-                self.getDerivitiveActivationFunction(self.activations[i])(z_s[i]))
+            w_delta = self.weights[i + 1].T.dot(deltas[i + 1])
+            deltas[i] = w_delta * (self.getDerivitiveActivationFunction(self.activations[i])(z_s[i]))
             # a= [print(d.shape) for d in deltas]
         batch_size = y.shape[1]
-        db = [d.dot(np.ones((batch_size, 1))) / float(batch_size) for d in deltas]
-        dw = [d.dot(a_s[i].T) / float(batch_size) for i, d in enumerate(deltas)]
+        db = []
+        for d in deltas:
+            eye = np.ones((batch_size, 1))
+            val = d.dot(eye)/float(batch_size)
+            db.append(val)
+        # db = [d.dot(np.ones((batch_size, 1))) / float(batch_size) for d in deltas]
+        dw = []
+        for i, d in enumerate(deltas):
+            numeratore = d.dot(a_s[i].T)
+            val = numeratore/float(batch_size)
+            dw.append(val)
+        # dw = [d.dot(a_s[i].T) / float(batch_size) for i, d in enumerate(deltas)]
         # return the derivitives respect to weight matrix and biases
         return dw, db
-
 
     def train(self, x, y, batch_size=10, epochs=100, lr=0.01):
         # update weights and biases based on the output
@@ -99,11 +108,11 @@ class NeuralNetwork(object):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    nn = NeuralNetwork([1, 100, 1], activations=['sigmoid', 'sigmoid'])
+    nn = NeuralNetwork([1, 10, 20, 1], activations=['sigmoid', 'sigmoid'])
     X = 2 * np.pi * np.random.rand(1000).reshape(1, -1)
     y = np.sin(X)
 
-    nn.train(X, y, epochs=10000, batch_size=64, lr=.3)
+    nn.train(X, y, epochs=10000, batch_size=10, lr=.3)
     _, a_s = nn.feedforward(X)
     # print(y, X)
     plt.scatter(X.flatten(), y.flatten())
