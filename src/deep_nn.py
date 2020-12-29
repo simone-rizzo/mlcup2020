@@ -53,7 +53,7 @@ class DeepNeuralNetwork():
             self.backpropagate(diff)
             self.train_losses.append(self.get_loss(train_label, train_out))
 
-            # validation feeforward
+            # validation feedforward
             valid_out = self.feedforward(valid_data)
             self.valid_losses.append(self.get_loss(valid_label, valid_out))
 
@@ -105,7 +105,7 @@ class Layer:
 class ActFunctions:
     """"""
     def __init__(self, name):
-        assert name in ['sigm', 'relu', 'tanh']
+        assert name in ['sigm', 'relu', 'tanh', 'iden']
         self.name = name
 
     def function(self, x):            
@@ -114,14 +114,14 @@ class ActFunctions:
             return 1 / (1 + np.exp(-x))
         elif self.name == 'relu':
             return np.maximum(x, 0)
-        elif self.name == 'tanh':
-            return np.tanh(x)
+        elif self.name == 'iden':
+            return x
 
     def derivative(self, x):            
         """"""
         if self.name == 'sigm':
-            return x * (1 - x)
+            return self.function(x) * (1 - self.function(x))
         elif self.name == 'relu':
             return np.greater(x, 0)
-        elif self.name == 'tanh':
-            return 1 - x ** 2
+        elif self.name == 'iden':
+            return x

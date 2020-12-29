@@ -31,13 +31,26 @@ defaultParameters = {
     'epochs': 1
 }
 
-trainData_ = np.array([[1, 1], [2,1]])
-trainLabels_ = np.array([[0], [1]])
-validationData_ = np.array([[1, 1]])
-validationLabels_ = np.array([0])
-testData = np.array([[2,2]])
+np.random.seed(0)
+train_data = np.array([[1, 1], [2,1]])
+train_labels = np.array([[0], [1]])
+test_data = np.array([[2,2]])
 
 model = DeepNeuralNetwork(**defaultParameters)
-model.fit(trainData_, trainLabels_, validationData_, validationLabels_)
-val = model.feedforward(testData)
+model.fit(train_data, train_labels, train_data, train_labels)
+val = model.feedforward(test_data)
 print(val)
+
+
+# defaultParameters = {
+#     'layer_sizes': [1, 100, 1],
+#     'ETA': 0.5,
+#     'epochs': 1,
+#     'act_out': 'relu'
+# }
+# X = 2 * np.pi * np.random.rand(100).reshape(-1, 1)
+# y = np.sin(X)
+# nn = DeepNeuralNetwork(**defaultParameters)
+# nn.fit(X, y, X, y)
+# # nn.feed_forward(X)
+# print(nn.feedforward(X))
