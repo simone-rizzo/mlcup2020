@@ -9,7 +9,7 @@ params = {
     'ETA': 0.5,
     'LAMBDA': 0.01,
     'ALPHA': 0.9,
-    'epochs': 2000
+    'epochs': 600
 }
 
 def show_single_model(param, train_data, train_labels, valid_data, valid_labels):
@@ -17,6 +17,7 @@ def show_single_model(param, train_data, train_labels, valid_data, valid_labels)
     model.fit(train_data, train_labels, valid_data, valid_labels)
     plt.plot(model.train_losses)
     plt.plot(model.valid_losses)
+    print(min(model.train_losses))
     plt.show()
 
 np.random.seed(0)

@@ -88,6 +88,7 @@ class Layer:
     def init_weights(self, dim_in, dim_out):
         self.w = np.random.randn(dim_in, dim_out)/2
         self.b = np.random.randn(1, dim_out)/2
+        self.old_delta_w = 0
 
     def feedforward(self, x):
         self.x = x
@@ -102,16 +103,14 @@ class Layer:
         delta_w = eta * np.dot(np.transpose(self.x), self.delta)
         delta_b = eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
 
-        # add lambda regularization + momentum
-        # TODO add momentum
-        delta_w += 2 * lamb * self.w 
-        delta_b += 2 * lamb * self.b 
+        # lambda regularization + momentum
+        delta_w += -2 * lamb * self.w + alpha * self.old_delta_w
+        delta_b += -2 * lamb * self.b 
+        self.old_delta_w = delta_w
 
-        # update
-        self.w += (1/self.delta.shape[0]) * delta_w
-        self.b += (1/self.delta.shape[0]) * delta_b
-        # self.w += (1/self.delta.shape[0]) * eta * np.dot(np.transpose(self.x), self.delta)
-        # self.b += (1/self.delta.shape[0]) * eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
+        # update weights
+        self.w += delta_w * (1/self.delta.shape[0]) 
+        self.b += delta_b * (1/self.delta.shape[0]) 
 
 
 class ActFunctions:
