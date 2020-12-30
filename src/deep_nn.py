@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 
 
@@ -98,12 +99,14 @@ class Layer:
         return np.dot(self.delta, np.transpose(self.w))
 
     def update_weights(self, eta):
-        self.w += eta * np.dot(np.transpose(self.x), self.delta)
-        # self.b += eta * self.delta
+        self.w += eta * np.dot(np.transpose(self.x), self.delta)*(1/self.delta.shape[0])
+        eyes = np.ones((self.delta.shape[0], 1))
+        dbias = eyes.T.dot(self.delta)/float(self.delta.shape[0])
+        self.b += eta * dbias
 
 
 class ActFunctions:
-    """"""
+    """Class that contains activation functions and derivatives"""
     def __init__(self, name):
         assert name in ['sigm', 'relu', 'iden']
         self.name = name
@@ -125,3 +128,13 @@ class ActFunctions:
             return np.greater(x, 0)
         elif self.name == 'iden':
             return 1
+
+"""Small examples with sin(x) with perturbations"""
+X = 2 * np.pi * np.random.rand(1000).reshape(-1, 1)
+y = np.sin(X)
+nn = DeepNeuralNetwork([1, 70, 1], act_hidden='relu', act_out='iden', ETA=0.01, regression=True)
+nn.fit(X, y, X, y)
+# nn.feed_forward(X)
+print(nn.train_losses)
+plt.plot(nn.train_losses)
+plt.show()
