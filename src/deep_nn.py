@@ -36,7 +36,7 @@ class DeepNeuralNetwork():
 
         # update weights layers
         for layer in self.layers:
-            layer.update_weights(self.ETA)
+            layer.update_weights(self.ETA, self.LAMBDA)
 
     def fit(self, train_data, train_label, valid_data, valid_label):
         """"""
@@ -98,11 +98,19 @@ class Layer:
         self.delta = diff * self.activation.derivative(self.h)
         return np.dot(self.delta, np.transpose(self.w))
 
-    def update_weights(self, eta):
-        self.w += eta * np.dot(np.transpose(self.x), self.delta)*(1/self.delta.shape[0])
-        eyes = np.ones((self.delta.shape[0], 1))
-        dbias = eyes.T.dot(self.delta)/float(self.delta.shape[0])
-        self.b += eta * dbias
+    def update_weights(self, eta, lamb):
+        delta_w = eta * np.dot(np.transpose(self.x), self.delta)
+        delta_b = eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
+
+        # lambda regularization
+        delta_w += 2 * lamb * self.w
+        delta_b += 2 * lamb * self.b
+
+        # update
+        self.w += (1/self.delta.shape[0]) * delta_w
+        self.b += (1/self.delta.shape[0]) * delta_b
+        # self.w += (1/self.delta.shape[0]) * eta * np.dot(np.transpose(self.x), self.delta)
+        # self.b += (1/self.delta.shape[0]) * eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
 
 
 class ActFunctions:
@@ -129,12 +137,13 @@ class ActFunctions:
         elif self.name == 'iden':
             return 1
 
-"""Small examples with sin(x) with perturbations"""
-X = 2 * np.pi * np.random.rand(1000).reshape(-1, 1)
-y = np.sin(X)
-nn = DeepNeuralNetwork([1, 70, 1], act_hidden='relu', act_out='iden', ETA=0.01, regression=True)
-nn.fit(X, y, X, y)
-# nn.feed_forward(X)
-print(nn.train_losses)
-plt.plot(nn.train_losses)
-plt.show()
+
+# """Small examples with sin(x) with perturbations"""
+# X = 2 * np.pi * np.random.rand(1000).reshape(-1, 1)
+# y = np.sin(X)
+# nn = DeepNeuralNetwork([1, 100, 1], act_hidden='relu', act_out='iden', ETA=0.001, LAMBDA=0.1, regression=True)
+# nn.fit(X, y, X, y)
+# # nn.feed_forward(X)
+# print(nn.train_losses)
+# plt.plot(nn.train_losses)
+# plt.show()
