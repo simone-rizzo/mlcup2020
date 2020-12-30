@@ -6,8 +6,10 @@ from load_data import load_monk
 
 params = {
     'layer_sizes': [17, 4, 1],
-    'ETA': 0.1,
-    'LAMBDA': 0.001,
+    'ETA': 0.5,
+    'LAMBDA': 0.01,
+    'ALPHA': 0.9,
+    'epochs': 2000
 }
 
 def show_single_model(param, train_data, train_labels, valid_data, valid_labels):
@@ -17,10 +19,11 @@ def show_single_model(param, train_data, train_labels, valid_data, valid_labels)
     plt.plot(model.valid_losses)
     plt.show()
 
+np.random.seed(0)
 monk = 2
 train_data, train_labels = load_monk(monk, 'train', encodeLabel=False)
 test_data, test_labels = load_monk(monk, 'test', encodeLabel=False)
 train_data, valid_data, train_labels, valid_labels = train_test_split(
         train_data, train_labels, test_size=0.3)
 
-show_single_model(**params, train_data, train_labels, valid_data, valid_labels)
+show_single_model(params, train_data, train_labels, valid_data, valid_labels)

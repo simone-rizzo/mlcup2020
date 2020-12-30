@@ -36,7 +36,7 @@ class DeepNeuralNetwork():
 
         # update weights layers
         for layer in self.layers:
-            layer.update_weights(self.ETA, self.LAMBDA)
+            layer.update_weights(self.ETA, self.LAMBDA, self.ALPHA)
 
     def fit(self, train_data, train_label, valid_data, valid_label):
         """"""
@@ -98,13 +98,14 @@ class Layer:
         self.delta = diff * self.activation.derivative(self.h)
         return np.dot(self.delta, np.transpose(self.w))
 
-    def update_weights(self, eta, lamb):
+    def update_weights(self, eta, lamb, alpha):
         delta_w = eta * np.dot(np.transpose(self.x), self.delta)
         delta_b = eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
 
-        # lambda regularization
-        delta_w += 2 * lamb * self.w
-        delta_b += 2 * lamb * self.b
+        # add lambda regularization + momentum
+        # TODO add momentum
+        delta_w += 2 * lamb * self.w 
+        delta_b += 2 * lamb * self.b 
 
         # update
         self.w += (1/self.delta.shape[0]) * delta_w
