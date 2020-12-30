@@ -105,7 +105,7 @@ class Layer:
 class ActFunctions:
     """"""
     def __init__(self, name):
-        assert name in ['sigm', 'relu', 'tanh', 'iden']
+        assert name in ['sigm', 'relu', 'iden']
         self.name = name
 
     def function(self, x):            
@@ -124,4 +124,4 @@ class ActFunctions:
         elif self.name == 'relu':
             return np.greater(x, 0)
         elif self.name == 'iden':
-            return x
+            return 1
