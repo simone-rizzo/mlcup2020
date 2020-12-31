@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
 
-def model_selection(params, train_data, train_labels, topn=5, repeat=10):
+def model_selection(params, train_data, train_labels, topn=5, repeat=5):
     """"""
     list_params = list(product(*list(params.values())))
     best_params = []
@@ -15,7 +15,7 @@ def model_selection(params, train_data, train_labels, topn=5, repeat=10):
 
     # grid search
     for i, param in enumerate(list_params):
-        print("{}/{}".format(i, len(list_params)), end="\r")
+        print("gridsearch {}/{}".format(i+1, len(list_params)), end="\r")
 
         param_set = {}
         for j in range(len(params)):

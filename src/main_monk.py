@@ -1,14 +1,16 @@
 from grid_search import model_selection, model_assessment
 from load_data import load_monk
 
+
 params_grid = {
     'layer_sizes': [[17, 4, 1]],
-    'ETA': [0.4, 0.5, 0.6],
+    'ETA': [0.5],
     'LAMBDA': [0.01, 0.05, 0.1],
-    'ALPHA': [0.9]
+    'ALPHA': [0.9, 0.8],
+    'weight_init': ['he']
 }
 
-monk = 1
+monk = 3
 train_data, train_labels = load_monk(monk, 'train', encodeLabel=False)
 test_data, test_labels = load_monk(monk, 'test', encodeLabel=False)
 
