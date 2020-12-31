@@ -3,20 +3,21 @@ import numpy as np
 
 class DeepNeuralNetwork():
     """"""
-
-    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", regression=False):
+    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", regression=False, BATCH=None, WEIGHT_INI='default'):
         self.ETA = ETA
         self.ALPHA = ALPHA
         self.LAMBDA = LAMBDA
         self.epochs = epochs
         self.regression = regression
         self.loss = loss
+        self.BATCH = BATCH
+        self.WEIGHT_INI = WEIGHT_INI
 
         self.layers = []
         for i in range(len(layer_sizes)-2):
-            layer = Layer(layer_sizes[i], layer_sizes[i+1], act_hidden)
+            layer = Layer(layer_sizes[i], layer_sizes[i+1], act_hidden, WEIGHT_INI)
             self.layers.append(layer)
-        self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], act_out))
+        self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], act_out, WEIGHT_INI))
 
         # assert self.weight_init in ['xav', 'he', 'type1']
         # assert self.loss in ['MSE', 'MEE']
@@ -39,6 +40,11 @@ class DeepNeuralNetwork():
 
     def fit(self, train_data, train_label, valid_data=None, valid_label=None):
         """"""
+        batch_size = train_data.shape[0]
+
+        if self.BATCH is not None:
+            batch_size = self.BATCH
+
         self.train_accuracies = []
         self.train_losses = []
         self.valid_accuracies = []
@@ -48,19 +54,24 @@ class DeepNeuralNetwork():
             print("iteration {}/{}".format(iteration + 1, self.epochs), end="\r")
 
             # train feedforward and backpropagation
-            train_out = self.feedforward(train_data)
-            diff = train_label - train_out
-            self.backpropagate(diff)
-            self.train_losses.append(self.get_loss(train_label, train_out))
+            i = 0
+            while i < train_data.shape[0]:
+                x_batch = train_data[i:i + batch_size]
+                y_batch = train_label[i:i + batch_size]
+                i = i + batch_size
+                train_out = self.feedforward(x_batch)
+                diff = y_batch - train_out
+                self.backpropagate(diff)
+                self.train_losses.append(self.get_loss(y_batch, train_out))
 
             # validation feedforward
             if valid_data is not None:
                 valid_out = self.feedforward(valid_data)
                 self.valid_losses.append(self.get_loss(valid_label, valid_out))
 
-            # train loss and accuracy 
+            # train loss and accuracy
             if not self.regression:
-                self.train_accuracies.append(self.get_accuracy(train_label, train_out))
+                self.train_accuracies.append(self.get_accuracy(train_label, self.feedforward(train_data)))
             if not self.regression and valid_data is not None:
                 self.valid_accuracies.append(self.get_accuracy(valid_label, valid_out))
 
@@ -82,16 +93,25 @@ class DeepNeuralNetwork():
 
 class Layer:
     """"""
-
-    def __init__(self, dim_in, dim_out, activation):
+    def __init__(self, dim_in, dim_out, activation, weight_init):
         self.activation = ActFunctions(activation)
-        self.init_weights(dim_in, dim_out)
+        self.init_weights(dim_in, dim_out, weight_init)
 
-    def init_weights(self, dim_in, dim_out):
+    def init_weights(self, dim_in, dim_out, weight_init):
         """"""
-        self.w = np.random.randn(dim_in, dim_out)/2
-        self.b = np.random.randn(1, dim_out)/2
         self.old_delta_w = 0
+        if weight_init == 'xav':
+            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(1/dim_out)
+            self.b = np.random.randn(1, dim_out)*np.sqrt(1/dim_out)
+        elif weight_init == 'he':
+            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(2/dim_out)
+            self.b = np.random.randn(1, dim_out)*np.sqrt(2/dim_out)
+        elif weight_init == 'default':
+            self.w = np.random.randn(dim_in, dim_out) / 2
+            self.b = np.random.randn(1, dim_out) / 2
+        elif weight_init == 'type1':
+            self.w = np.random.randn(dim_in, dim_out) * np.sqrt(2 / dim_in+dim_out)
+            self.b = np.random.randn(1, dim_out) * np.sqrt(2 / 1+dim_out)
 
     def feedforward(self, x):
         """"""
@@ -111,12 +131,12 @@ class Layer:
 
         # lambda regularization + momentum
         delta_w += -2 * lamb * self.w + alpha * self.old_delta_w
-        delta_b += -2 * lamb * self.b 
+        delta_b += -2 * lamb * self.b
         self.old_delta_w = delta_w
 
         # update weights
-        self.w += delta_w * (1/self.delta.shape[0]) 
-        self.b += delta_b * (1/self.delta.shape[0]) 
+        self.w += delta_w * (1/self.delta.shape[0])
+        self.b += delta_b * (1/self.delta.shape[0])
 
 
 class ActFunctions:
@@ -126,7 +146,7 @@ class ActFunctions:
         assert name in ['sigm', 'relu', 'iden']
         self.name = name
 
-    def function(self, x):            
+    def function(self, x):
         """"""
         if self.name == 'sigm':
             return 1 / (1 + np.exp(-x))
@@ -135,7 +155,7 @@ class ActFunctions:
         elif self.name == 'iden':
             return x
 
-    def derivative(self, x):            
+    def derivative(self, x):
         """"""
         if self.name == 'sigm':
             return self.function(x) * (1 - self.function(x))
