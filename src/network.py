@@ -1,195 +1,129 @@
 import numpy as np
-from sklearn.metrics import accuracy_score
 
 
-class NeuralNetwork():
+class DeepNeuralNetwork():
     """"""
 
-    def __init__(self, hidden_units, activation, ETA, ALPHA, LAMBDA, weight_init='xav', epochs=500, early_stopping=False, tolerance=1e-3, patience=None, loss="MEE", regression=False):
+    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", regression=False):
         self.ETA = ETA
         self.ALPHA = ALPHA
         self.LAMBDA = LAMBDA
-        self.loss = loss
         self.epochs = epochs
-        self.hidden_units = hidden_units
-        self.weight_init = weight_init
         self.regression = regression
-        self.early_stopping = early_stopping
-        self.activation = ActFunctions(activation)
+        self.loss = loss
 
-        # if self.early_stopping:
-        #     assert patience is not None, "Please provide the 'patience' as number of deterioration epochs."
-        #     self.tolerance = tolerance
-        #     self.patience = patience
-        # else:
-        #     self.patience = None
-        #     self.tolerance = None
+        self.layers = []
+        for i in range(len(layer_sizes)-2):
+            layer = Layer(layer_sizes[i], layer_sizes[i+1], act_hidden)
+            self.layers.append(layer)
+        self.layers.append(Layer(layer_sizes[-2], layer_sizes[-1], act_out))
 
-        assert self.weight_init in ['xav', 'he', 'type1']
-        assert self.loss in ['MSE', 'MEE']
+        # assert self.weight_init in ['xav', 'he', 'type1']
+        # assert self.loss in ['MSE', 'MEE']
 
-    def create_model(self, train_data, train_label):
+    def feedforward(self, x):
         """"""
-        np.random.seed(0)
-        self.input_units = train_data.shape[1]
-        self.output_units = train_label.shape[1]
-        
-        if self.weight_init == 'xav':
-            return{
-                'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(1/self.hidden_units),
-                'b_h': np.random.randn(1, self.hidden_units),
-                'W_ho': np.random.randn(self.hidden_units, self.output_units)*np.sqrt(1/self.hidden_units),
-                'b_o': np.random.randn(1, self.output_units)
-            }
-        elif self.weight_init == 'he':
-            return{
-                'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(2/self.hidden_units),
-                'W_ho': np.random.randn(self.hidden_units, self.output_units)*np.sqrt(2/self.hidden_units),
-                'b_h': np.random.randn(1, self.hidden_units),
-                'b_o': np.random.randn(1, self.output_units)
-            }
-        elif self.weight_init == 'type1':
-            return{
-                'W_ih': np.random.randn(self.input_units, self.hidden_units)*np.sqrt(2/(self.hidden_units+self.input_units)),
-                'W_ho': np.random.randn(self.hidden_units, self.output_units)*np.sqrt(2/(self.hidden_units+self.output_units)),
-                'b_h': np.random.randn(1, self.hidden_units),
-                'b_o': np.random.randn(1, self.output_units)
-            }
+        for layer in self.layers:
+            x = layer.feedforward(x)
+        return x
 
-    def get_loss(self, y_true, y_pred):
-        """Method for computing the loss with Mean Square Error and Mean Euclidean Error"""
-        if self.loss == "MSE":
-            return np.mean(np.square(y_true - y_pred))
-        elif self.loss == "MEE":
-            return np.mean(np.sqrt(np.sum(np.square(y_true - y_pred), axis=1)))
-
-    def get_accuracy(self, y_true, y_pred):
-        """Simple method to compute the accuracy"""
-        if not self.regression:
-            y_pred = np.around(y_pred)
-        accuracy = np.sum([1 if pred == true else 0 for pred, true in zip(y_pred, y_true)])/len(y_true)
-        return accuracy
-
-    def feedforward(self, data):
-        """We compute wx+b and we pass throw the activation functions"""
-        ih_ = np.dot(data, self.model['W_ih']) + self.model['b_h']
-        hh_ = self.activation.function(ih_)
-        ho_ = np.dot(hh_, self.model['W_ho']) + self.model['b_o']
-        if self.regression:
-            return hh_, ho_
-        oo_ = self.activation.function(ho_)
-        return hh_, oo_
-
-    def backpropagation(self, data, label, hh_, oo_, old_delta_out, old_delta_hid):
+    def backpropagate(self, diff):
         """"""
-        difference = label - oo_
+        # calculate error delta layers
+        for layer in reversed(self.layers):
+            diff = layer.backpropagate(diff)
 
-        # o_k * (1 - o_k)(t_k - o_k)
-        deriv = self.activation.derivative(oo_)
-        delta_out = difference * deriv
+        # update weights layers
+        for layer in self.layers:
+            layer.update_weights(self.ETA, self.LAMBDA, self.ALPHA)
 
-        deriv = self.activation.derivative(hh_)
-        delta_hid = delta_out.dot(self.model['W_ho'].T) * deriv
-
-        # if self.regression:
-        #     from sklearn.preprocessing import normalize
-        #     # output doesn't passes through nonlinear function for regression
-        #     delta_out = normalize(difference, axis=1, norm='l1')
-
-        # learningrate factor - regularization facor + momentum factor
-        delta_out_ = hh_.T.dot(delta_out) * self.ETA
-        otherUpdatesW_ho = self.model['W_ho'] * (-self.LAMBDA) + self.ALPHA * old_delta_out
-        delta_hid_ = data.T.dot(delta_hid) * self.ETA
-        otherUpdatesW_ih = self.model['W_ih'] * (-self.LAMBDA) + self.ALPHA * old_delta_hid
-
-        if self.regression:
-            delta_out_ = delta_out_/data.shape[0]
-            delta_hid_ = delta_hid_ / data.shape[0]
-
-        self.model['W_ho'] += delta_out_ + otherUpdatesW_ho
-        self.model['W_ih'] += delta_hid_ + otherUpdatesW_ih
-        self.model['b_o'] += np.sum(delta_out,
-                                   axis=0, keepdims=True) * self.ETA
-        self.model['b_h'] += np.sum(delta_hid,
-                                   axis=0, keepdims=True) * self.ETA
-        if self.regression:
-            self.model['b_o'] /= data.shape[0]
-            self.model['b_h'] /= data.shape[0]
-
-        return delta_out_, delta_hid_
-
-    def predict(self, data, labels=None, acc_=False):
+    def fit(self, train_data, train_label, valid_data=None, valid_label=None):
         """"""
-        _, result = self.feedforward(data)
-        if acc_:
-            accuracies = []
-            for i in range(data.shape[0]):
-                assert labels is not None, "Labels are not provided. Can't calculate accuracy."
-                accuracies.append(self.get_accuracy(
-                    labels[i], result[i]))
-            return result, np.sum(accuracies)/data.shape[0]
-
-        if self.regression:
-            return result
-        else:
-            return np.around(result)
-
-    def fit(self, train_data, train_label, valid_data=None, valid_label=None, early_stoppingLog=True, comingFromGridSearch=False):
-        """"""
-        self.model = self.create_model(train_data, train_label)
         self.train_accuracies = []
         self.train_losses = []
         self.valid_accuracies = []
         self.valid_losses = []
 
-        delta_out = 0
-        delta_hid = 0
-
         for iteration in range(self.epochs):
             print("iteration {}/{}".format(iteration + 1, self.epochs), end="\r")
-            hh, oo = self.feedforward(train_data)
-            old_delta_out = delta_out
-            old_delta_hid = delta_hid
-            delta_out, delta_hid = self.backpropagation(
-                train_data, train_label, hh, oo, old_delta_out, old_delta_hid)
 
-            epochLoss = self.get_loss(train_label, oo)
-            self.train_losses.append(epochLoss)
+            # train feedforward and backpropagation
+            train_out = self.feedforward(train_data)
+            diff = train_label - train_out
+            self.backpropagate(diff)
+            self.train_losses.append(self.get_loss(train_label, train_out))
 
-            if not self.regression:
-                self.train_accuracies.append(self.get_accuracy(train_label, oo))
-
+            # validation feedforward
             if valid_data is not None:
-                valid_result = self.predict(valid_data, acc_=False)
-                self.valid_losses.append(self.get_loss(valid_label, valid_result))
-                if not self.regression:
-                    self.valid_accuracies.append(self.get_accuracy(
-                        valid_label, valid_result))
+                valid_out = self.feedforward(valid_data)
+                self.valid_losses.append(self.get_loss(valid_label, valid_out))
 
-            # patience = self.patience
-            # if self.early_stopping:
-            #     if iteration > 0:
-            #         if comingFromGridSearch:
-            #             self.newEpochNotification = False
-            #         lossDecrement = (
-            #             self.losses[iteration-1]-self.losses[iteration])/self.losses[iteration-1]
-            #         if lossDecrement < self.tolerance:
-            #             patience -= 1
-            #             if patience == 0:
-            #                 if early_stoppingLog:  # researcher mode ;D
-            #                     print("The algorithm has run out of patience. \nFinishing due to early stopping on epoch {}. \n PS. Try decreasing 'tolerance' or increasing 'patience'".format(
-            #                         iteration))
-            #                 self.newEpochNotification = True
-            #                 self.bestEpoch = iteration
-            #                 break
-            #         else:
-            #             patience = self.patience
+            # train loss and accuracy 
+            if not self.regression:
+                self.train_accuracies.append(self.get_accuracy(train_label, train_out))
+            if not self.regression and valid_data is not None:
+                self.valid_accuracies.append(self.get_accuracy(valid_label, valid_out))
+
+    def get_accuracy(self, y_true, y_out):
+        """"""
+        if self.regression:
+            return
+        y_out = np.around(y_out)
+        accuracy = np.sum([1 if out == true else 0 for out, true in zip(y_out, y_true)])/len(y_true)
+        return accuracy
+
+    def get_loss(self, y_true, y_out):
+        """"""
+        if self.loss == "MSE":
+            return np.mean(np.square(y_true - y_out))
+        elif self.loss == "MEE":
+            return np.mean(np.sqrt(np.sum(np.square(y_true - y_out), axis=1)))
+
+
+class Layer:
+    """"""
+
+    def __init__(self, dim_in, dim_out, activation):
+        self.activation = ActFunctions(activation)
+        self.init_weights(dim_in, dim_out)
+
+    def init_weights(self, dim_in, dim_out):
+        """"""
+        self.w = np.random.randn(dim_in, dim_out)/2
+        self.b = np.random.randn(1, dim_out)/2
+        self.old_delta_w = 0
+
+    def feedforward(self, x):
+        """"""
+        self.x = x
+        self.h = np.dot(self.x, self.w) + self.b
+        return self.activation.function(self.h)
+
+    def backpropagate(self, diff):
+        """"""
+        self.delta = diff * self.activation.derivative(self.h)
+        return np.dot(self.delta, np.transpose(self.w))
+
+    def update_weights(self, eta, lamb, alpha):
+        """"""
+        delta_w = eta * np.dot(np.transpose(self.x), self.delta)
+        delta_b = eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
+
+        # lambda regularization + momentum
+        delta_w += -2 * lamb * self.w + alpha * self.old_delta_w
+        delta_b += -2 * lamb * self.b 
+        self.old_delta_w = delta_w
+
+        # update weights
+        self.w += delta_w * (1/self.delta.shape[0]) 
+        self.b += delta_b * (1/self.delta.shape[0]) 
 
 
 class ActFunctions:
-    """Activation functions"""
+    """Class that contains activation functions and derivatives"""
+
     def __init__(self, name):
-        assert name in ['sigm', 'relu', 'tanh']
+        assert name in ['sigm', 'relu', 'iden']
         self.name = name
 
     def function(self, x):            
@@ -198,14 +132,14 @@ class ActFunctions:
             return 1 / (1 + np.exp(-x))
         elif self.name == 'relu':
             return np.maximum(x, 0)
-        elif self.name == 'tanh':
-            return np.tanh(x)
+        elif self.name == 'iden':
+            return x
 
     def derivative(self, x):            
-        """Derivatives of activation functions"""
+        """"""
         if self.name == 'sigm':
-            return x * (1 - x)
-        if self.name == 'relu':
+            return self.function(x) * (1 - self.function(x))
+        elif self.name == 'relu':
             return np.greater(x, 0)
-        if self.name == 'tanh':
-            return 1 - x ** 2
+        elif self.name == 'iden':
+            return 1
