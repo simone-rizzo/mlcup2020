@@ -12,7 +12,6 @@ class DeepNeuralNetwork():
         self.loss = loss
         self.BATCH = BATCH
         self.WEIGHT_INI = WEIGHT_INI
-
         self.layers = []
         for i in range(len(layer_sizes)-2):
             layer = Layer(layer_sizes[i], layer_sizes[i+1], act_hidden, WEIGHT_INI)
@@ -36,14 +35,12 @@ class DeepNeuralNetwork():
 
         # update weights layers
         for layer in self.layers:
-            layer.update_weights(self.ETA, self.LAMBDA, self.ALPHA)
+            layer.update_weights(self.ETA, self.LAMBDA, self.ALPHA, self.BATCH)
 
     def fit(self, train_data, train_label, valid_data=None, valid_label=None):
         """"""
-        batch_size = train_data.shape[0]
-
-        if self.BATCH is not None:
-            batch_size = self.BATCH
+        if self.BATCH is None:
+            self.BATCH = train_data.shape[0]
 
         self.train_accuracies = []
         self.train_losses = []
@@ -56,9 +53,9 @@ class DeepNeuralNetwork():
             # train feedforward and backpropagation
             i = 0
             while i < train_data.shape[0]:
-                x_batch = train_data[i:i + batch_size]
-                y_batch = train_label[i:i + batch_size]
-                i = i + batch_size
+                x_batch = train_data[i:i + self.BATCH]
+                y_batch = train_label[i:i + self.BATCH]
+                i = i + self.BATCH
                 train_out = self.feedforward(x_batch)
                 diff = y_batch - train_out
                 self.backpropagate(diff)
@@ -97,6 +94,7 @@ class Layer:
         self.activation = ActFunctions(activation)
         self.init_weights(dim_in, dim_out, weight_init)
 
+
     def init_weights(self, dim_in, dim_out, weight_init):
         """"""
         self.old_delta_w = 0
@@ -124,7 +122,7 @@ class Layer:
         self.delta = diff * self.activation.derivative(self.h)
         return np.dot(self.delta, np.transpose(self.w))
 
-    def update_weights(self, eta, lamb, alpha):
+    def update_weights(self, eta, lamb, alpha, batch):
         """"""
         delta_w = eta * np.dot(np.transpose(self.x), self.delta)
         delta_b = eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
@@ -135,8 +133,8 @@ class Layer:
         self.old_delta_w = delta_w
 
         # update weights
-        self.w += delta_w * (1/self.delta.shape[0])
-        self.b += delta_b * (1/self.delta.shape[0])
+        self.w += delta_w * (1/batch)
+        self.b += delta_b * (1/batch)
 
 
 class ActFunctions:
