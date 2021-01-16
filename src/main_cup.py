@@ -1,21 +1,24 @@
-from grid_search import model_selection, model_assessment
+from grid_search import model_selection, model_assessment, plot_models
 from load_data import load_cup
-
+import numpy as np
 
 params_grid = {
-    'layer_sizes': [[10, 10, 2]],
-    'ETA': [0.01, 0.05, 0.1],
-    'LAMBDA': [0.1, 0.3, 0.6],
-    'ALPHA': [0.9],
+    'layer_sizes': [[10, 100, 50, 2]],
+    'ETA': list(np.linspace(0.001, 0.01, 3)),
+    'LAMBDA': list(np.linspace(0.00001, 0.0001, 3)),
+    'ALPHA': list(np.linspace(0.8, 0.9, 2)),
     'act_out': ['iden'],
-    'weight_init': ['he'],
+    'act_hidden': ['tanh', 'sigm', 'relu'],
+    'weight_init': ['default', 'xav', 'he'],
     'regression': [True],
-    'epochs': [500]
+    'epochs': [500],
+    'loss': ['MEE']
 }
 
 filename = "./data/cup/ML-CUP20-TR.csv"
 train_data, train_labels, test_data, test_labels = load_cup(filename)
 
-best_params = model_selection(params_grid, train_data, train_labels, repeat=5)
-model_assessment(best_params[0]['params'], train_data, train_labels, test_data, test_labels)
-print(best_params[0])
+best_params = model_selection(params_grid, train_data, train_labels, topn=9, repeat=1)
+# best_model = model_assessment(best_params[0]['params'], train_data, train_labels, test_data, test_labels)
+plot_models(best_params, train_data, train_labels)
+print(f'Best model parameters { best_params[0] }')

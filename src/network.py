@@ -2,9 +2,11 @@ import numpy as np
 
 
 class DeepNeuralNetwork():
-    """"""
+    """
+    DeepNeuralNetwork is a implementation of the Neural Network used for Deep Learning
+    """
 
-    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", weight_init="xav", regression=False):
+    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", weight_init="default", regression=False):
         self.ETA = ETA
         self.ALPHA = ALPHA
         self.LAMBDA = LAMBDA
@@ -20,17 +22,17 @@ class DeepNeuralNetwork():
 
         assert self.loss in ['MSE', 'MEE']
         assert act_out in ['iden', 'sigm']
-        assert act_hidden in ['relu', 'sigm']
-        assert weight_init in ['xav', 'he']
+        assert act_hidden in ['relu', 'sigm', 'tanh']
+        assert weight_init in ['default', 'xav', 'he']
 
     def feedforward(self, x):
-        """"""
+        """Compute the feedforward by passing the input throught every layer"""
         for layer in self.layers:
             x = layer.feedforward(x)
         return x
 
     def backpropagate(self, diff):
-        """"""
+        """Compute the backpropagation algorithm"""
         # calculate error delta layers
         for layer in reversed(self.layers):
             diff = layer.backpropagate(diff)
@@ -40,7 +42,7 @@ class DeepNeuralNetwork():
             layer.update_weights(self.ETA, self.LAMBDA, self.ALPHA)
 
     def fit(self, train_data, train_label, valid_data=None, valid_label=None):
-        """"""
+        """Train the network and validate (optionally)"""
         self.train_accuracies = []
         self.train_losses = []
         self.valid_accuracies = []
@@ -67,58 +69,58 @@ class DeepNeuralNetwork():
             if not self.regression and valid_out is not None:
                 self.valid_accuracies.append(self.get_accuracy(valid_label, valid_out))
 
+    def get_loss(self, y_true, y_out):
+        """Compute the loss score"""
+        if self.loss == "MSE":
+            return np.mean(np.square(y_true - y_out))
+        elif self.loss == "MEE":
+            return np.mean(np.sqrt(np.sum(np.square(y_true - y_out), axis=1)))
+
     def get_accuracy(self, y_true, y_out):
-        """"""
+        """Compute the accuracy score (classification problem)"""
         if self.regression:
             return
         y_out = np.around(y_out)
         accuracy = np.sum([1 if out == true else 0 for out, true in zip(y_out, y_true)])/len(y_true)
         return accuracy
 
-    def get_loss(self, y_true, y_out):
-        """"""
-        if self.loss == "MSE":
-            return np.mean(np.square(y_true - y_out))
-        elif self.loss == "MEE":
-            return np.mean(np.sqrt(np.sum(np.square(y_true - y_out), axis=1)))
-
 
 class Layer:
-    """"""
+    """
+    Fully connected layer used in DeepNeuralNetwork.
+    """
 
     def __init__(self, dim_in, dim_out, activation, weight_init):
         self.activation = ActFunctions(activation)
         self.init_weights(dim_in, dim_out, weight_init)
 
     def init_weights(self, dim_in, dim_out, weight_init):
-        """"""
-        if weight_init == 'xav':
+        """Initialize the weights of the layer"""
+        if weight_init == 'default':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(1/dim_out)
-            self.b = np.random.randn(1, dim_out)*np.sqrt(1/dim_out)
+            self.b = np.zeros([1, dim_out])
+            # self.b = np.random.randn(1, dim_out)*np.sqrt(1/dim_out)
+        if weight_init == 'xav':
+            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(6/dim_in+dim_out)
+            self.b = np.zeros([1, dim_out])
         elif weight_init == 'he':
-            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(2/dim_out)
-            self.b = np.random.randn(1, dim_out)*np.sqrt(2/dim_out)
-        # if weight_init == 'xav':
-        #     self.w = np.random.randn(dim_in, dim_out)*np.sqrt(6/dim_in+dim_out)
-        #     self.b = np.zeros([1, dim_out])
-        # elif weight_init == 'he':
-        #     self.w = np.random.randn(dim_in, dim_out)*np.sqrt(6/dim_in+dim_out)/2
-        #     self.b = np.zeros([1, dim_out])
+            self.w = np.random.randn(dim_in, dim_out)*(np.sqrt(6/dim_in+dim_out)/2)
+            self.b = np.zeros([1, dim_out])
         self.old_delta_w = 0
 
     def feedforward(self, x):
-        """"""
+        """Compute the feedforward of the layer"""
         self.x = x
         self.h = np.dot(self.x, self.w) + self.b
         return self.activation.function(self.h)
 
     def backpropagate(self, diff):
-        """"""
+        """Compute the error term in the backpropagation algorithm"""
         self.delta = diff * self.activation.derivative(self.h)
         return np.dot(self.delta, np.transpose(self.w))
 
     def update_weights(self, eta, lamb, alpha):
-        """"""
+        """Update each weight of the layer"""
         delta_w = eta * np.dot(np.transpose(self.x), self.delta)
         delta_b = eta * np.ones((1, self.delta.shape[0])).dot(self.delta)
 
@@ -133,26 +135,32 @@ class Layer:
 
 
 class ActFunctions:
-    """Class that contains activation functions and derivatives"""
+    """
+    This class contains activation functions and its corresponding derivatives
+    """
 
     def __init__(self, name):
-        assert name in ['sigm', 'relu', 'iden']
+        assert name in ['sigm', 'relu', 'iden', 'tanh']
         self.name = name
 
-    def function(self, x):            
-        """"""
+    def function(self, x):
+        """Activation functions"""
         if self.name == 'sigm':
             return 1 / (1 + np.exp(-x))
         elif self.name == 'relu':
             return np.maximum(x, 0)
         elif self.name == 'iden':
             return x
+        elif self.name == 'tanh':
+            return np.tanh(x)
 
-    def derivative(self, x):            
-        """"""
+    def derivative(self, x):
+        """Derivatives of activation functions"""
         if self.name == 'sigm':
             return self.function(x) * (1 - self.function(x))
         elif self.name == 'relu':
             return np.greater(x, 0)
         elif self.name == 'iden':
             return 1
+        elif self.name == 'tanh':
+            return 1 - np.power(np.tanh(x), 2)
