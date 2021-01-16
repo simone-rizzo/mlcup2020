@@ -52,7 +52,8 @@ def load_monk(file_, filetype, encodeLabel=False):
 
     return data_, labels
 
-def load_cup(file_name,vl_percentage=0.20, ts_percentage=0.17, ):
+
+def load_cup(file_name, ts_percentage=0.17, ):
     my_data = genfromtxt(file_name, delimiter=',') #Read the file
     my_data = my_data[:, 1:]    #Remove first column
     ts_size = int(np.round(my_data.shape[0]*ts_percentage)) #Compute the percentage of datas to take for TS, with step size
@@ -63,14 +64,7 @@ def load_cup(file_name,vl_percentage=0.20, ts_percentage=0.17, ):
         my_data = np.delete(my_data, i+step_size-1, 0) #Delete ts_size datas from DS
     train_data = my_data[:, :-2] #Remove last 2 columns
     train_labels = my_data[:, -2:] #Keep only last 2 columns
-    test_label = ts_data[:, -2:]
     test_data = ts_data[:, :-2]
-    # train_data = normalize(train_data, axis=1, norm='l2')
-    # train_labels = normalize(train_labels, axis=1, norm='l2')
-    """for i in range(train_labels.shape[0]):
-        riga = train_labels[i]
-        riga = riga.reshape(1, -1)
-        norm = LA.norm(riga, 2)"""
-    # train_data_, validation_data_, train_labels_, validation_labels_ = train_test_split(train_data, train_labels, test_size = vl_percentage) #Split the TR into TR and Validation
+    test_label = ts_data[:, -2:]
     return train_data, train_labels, test_data, test_label
 

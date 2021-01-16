@@ -141,7 +141,7 @@ class ActFunctions:
     """Class that contains activation functions and derivatives"""
 
     def __init__(self, name):
-        assert name in ['sigm', 'relu', 'iden']
+        assert name in ['sigm', 'relu', 'iden', 'tanh']
         self.name = name
 
     def function(self, x):
@@ -152,6 +152,8 @@ class ActFunctions:
             return np.maximum(x, 0)
         elif self.name == 'iden':
             return x
+        elif self.name == 'tanh':
+            return np.tanh(x)
 
     def derivative(self, x):
         """"""
@@ -161,3 +163,5 @@ class ActFunctions:
             return np.greater(x, 0)
         elif self.name == 'iden':
             return 1
+        elif self.name == 'tanh':
+            return 1 - np.power(np.tanh(x), 2)

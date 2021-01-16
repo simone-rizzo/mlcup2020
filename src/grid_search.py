@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import product
-from src.network import DeepNeuralNetwork
+from network import DeepNeuralNetwork
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
