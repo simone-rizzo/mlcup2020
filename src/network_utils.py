@@ -11,10 +11,10 @@ import math
 This script contains 3 utility methods used for the network:
 
     model_selection()   - given a list of hyperparameters, it choose the best one by searching throught gridsearch and 
-                        validating using k-fold cross validation
+                            validating using k-fold cross validation
 
     model_assessment()  - once the best hyperparameter is chosen through model_selection(), this function assesses the 
-                        trains the final model on the train + valid set and assesses the performance using the final test set
+                            trains the final model on the train + valid set and assesses the performance using the final test set
 
     plot_models()       - create a grid-plot of n-models by plotting their training and validation losses
 """
@@ -89,7 +89,7 @@ def plot_models(params, train_data, train_labels):
         model.fit(train_data, train_labels, valid_data, valid_labels)
         axs[r, c].plot(np.array(model.train_losses), 'b-', label='Train Loss')
         axs[r, c].plot(np.array(model.valid_losses), 'r--', label='Valid Loss')
-        axs[r, c].set_title(f"MODEL: { param['layer_sizes'] } ETA: { param['ETA'] } LAMBDA: { param['LAMBDA'] } ALPHA: { param['ALPHA'] }", fontsize=8)
+        axs[r, c].set_title(f"MODEL: { param['layer_sizes'] } ETA: { param['ETA'] } LAMBDA: { param['LAMBDA'] } ALPHA: { param['ALPHA'] } ACT: { param['act_hidden'] }", fontsize=8)
         axs[r, c].set(xlabel='Ephocs', ylabel='Loss')
         axs[r, c].legend()
 
