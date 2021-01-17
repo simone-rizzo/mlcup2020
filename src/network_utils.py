@@ -28,7 +28,7 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
     # grid search
     for i, param in enumerate(list_params):
         print("gridsearch {}/{}".format(i+1, len(list_params)), end="\r")
-
+        print(str(i+1)+"/"+str(len(list_params)))
         param_set = {}
         for j in range(len(params)):
             param_set[list(params.keys())[j]] = param[j]
