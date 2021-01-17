@@ -1,42 +1,24 @@
-from src.grid_search import model_selection, model_assessment
-from src.load_data import load_monk, load_cup
-from src.network import DeepNeuralNetwork
-import matplotlib.pyplot as plt
+from grid_search import model_selection, model_assessment, plot_models
+from load_data import load_cup
 import numpy as np
-from sklearn.model_selection import train_test_split
 
-"""params = {
-    'layer_sizes': [10, 100, 50, 2],
-    'act_hidden': 'relu',
-    'act_out': 'iden',
-    'ETA': 0.001,
-    'LAMBDA': 0.01,
-    'ALPHA': 0.6,
-    'WEIGHT_INI': 'he',
-    'regression': True,
-    'epochs': 500
-}"""
-params = {
-    'layer_sizes': [10, 100, 50, 2],
-    'act_hidden': 'tanh',
-    'act_out': 'iden',
-    'ETA': 0.00450,
-    'LAMBDA': 0.00001,
-    'ALPHA': 0.6,
-    'WEIGHT_INI': 'he',
-    'regression': True,
-    'epochs': 10000,
-    'loss': 'MEE'
+params_grid = {
+    'layer_sizes': [[10, 100, 50, 2]],
+    'ETA': list(np.linspace(0.001, 0.01, 3)),
+    'LAMBDA': list(np.linspace(0.00001, 0.0001, 3)),
+    'ALPHA': list(np.linspace(0.8, 0.9, 2)),
+    'act_out': ['iden'],
+    'act_hidden': ['tanh', 'sigm', 'relu'],
+    'weight_init': ['default', 'xav', 'he'],
+    'regression': [True],
+    'epochs': [500],
+    'loss': ['MEE']
 }
-np.random.seed(0)
-filename = "../data/cup/ML-CUP20-TR.csv"
-tr_data, tr_label, test_data, test_label = load_cup(filename)
-trd, vldata, trlb, vllbl = train_test_split(tr_data, tr_label, test_size=0.20)
-nn = DeepNeuralNetwork(**params)
-nn.fit(trd, trlb, vldata, vllbl)
-plt.plot(nn.train_losses)
-plt.plot(nn.valid_losses)
-plt.show()
-print(np.amin(nn.train_losses))
-print(np.mean(nn.valid_losses))
-# model_assessment(params, tr_data, tr_label, tr_data, tr_label)
+
+filename = "./data/cup/ML-CUP20-TR.csv"
+train_data, train_labels, test_data, test_labels = load_cup(filename)
+
+best_params = model_selection(params_grid, train_data, train_labels, topn=9, repeat=1)
+# best_model = model_assessment(best_params[0]['params'], train_data, train_labels, test_data, test_labels)
+plot_models(best_params, train_data, train_labels)
+print(f'Best model parameters { best_params[0] }')
