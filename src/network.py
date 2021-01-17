@@ -126,6 +126,18 @@ class Layer:
             self.w = np.random.randn(dim_in, dim_out)*(np.sqrt(6/dim_in+dim_out)/2)
             self.b = np.zeros([1, dim_out])
         self.old_delta_w = 0
+        if weight_init == 'xav':
+            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(1/dim_out)
+            self.b = np.random.randn(1, dim_out)*np.sqrt(1/dim_out)
+        elif weight_init == 'he':
+            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(2/dim_out)
+            self.b = np.random.randn(1, dim_out)*np.sqrt(2/dim_out)
+        elif weight_init == 'default':
+            self.w = np.random.randn(dim_in, dim_out) / 2
+            self.b = np.random.randn(1, dim_out) / 2
+        elif weight_init == 'type1':
+            self.w = np.random.randn(dim_in, dim_out) * np.sqrt(2 / dim_in+dim_out)
+            self.b = np.random.randn(1, dim_out) * np.sqrt(2 / 1+dim_out)
 
     def feedforward(self, x):
         """Compute the feedforward of the layer"""
