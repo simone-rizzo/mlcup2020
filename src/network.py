@@ -2,7 +2,7 @@ import numpy as np
 
 
 """
-This script contains the neural network implementation using 3 classes 
+This script contains the neural network implementation using 3 classes: 
 
     DeepNeuralNetwork, neural network implementation from scratch, functionalities:
         feedforward()   - feedforward the input data through the network
@@ -42,7 +42,7 @@ class DeepNeuralNetwork:
 
         assert self.loss in ['MSE', 'MEE']
         assert act_out in ['iden', 'sigm']
-        assert act_hidden in ['relu', 'sigm', 'tanh']
+        assert act_hidden in ['relu', 'leak', 'sigm', 'tanh']
         assert weight_init in ['default', 'xav', 'he']
 
     def feedforward(self, x):
@@ -159,7 +159,6 @@ class ActFunctions:
     """
 
     def __init__(self, name):
-        assert name in ['sigm', 'relu', 'iden', 'tanh']
         self.name = name
 
     def function(self, x):
@@ -168,6 +167,8 @@ class ActFunctions:
             return 1 / (1 + np.exp(-x))
         elif self.name == 'relu':
             return np.maximum(x, 0)
+        elif self.name == 'leak':
+            return np.where(x > 0, x, x * 0.1)
         elif self.name == 'iden':
             return x
         elif self.name == 'tanh':
@@ -179,6 +180,8 @@ class ActFunctions:
             return self.function(x) * (1 - self.function(x))
         elif self.name == 'relu':
             return np.greater(x, 0)
+        elif self.name == 'leak':
+            return np.where(x > 0, 1, 0.1)
         elif self.name == 'iden':
             return 1
         elif self.name == 'tanh':
