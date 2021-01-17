@@ -4,14 +4,26 @@ from network import DeepNeuralNetwork
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+import math
 
 
-def model_selection(params, train_data, train_labels, topn=5, repeat=5, kfold=5):
+"""
+This script contains 3 utility methods used for the network:
+
+    model_selection()   - given a list of hyperparameters, it choose the best one by searching throught gridsearch and 
+                        validating using k-fold cross validation
+
+    model_assessment()  - once the best hyperparameter is chosen through model_selection(), this function assesses the 
+                        trains the final model on the train + valid set and assesses the performance using the final test set
+
+    plot_models()       - create a grid-plot of n-models by plotting their training and validation losses
+"""
+
+
+def model_selection(params, train_data, train_labels, topn=9, kfold=4):
     """Select the best hyperparameters using gridsearch + k-fold cross validation"""
     list_params = list(product(*list(params.values())))
     best_params = []
-    train_data, valid_data, train_labels, valid_labels = train_test_split(
-        train_data, train_labels, test_size=0.3)
 
     # grid search
     for i, param in enumerate(list_params):
@@ -21,19 +33,22 @@ def model_selection(params, train_data, train_labels, topn=5, repeat=5, kfold=5)
         for j in range(len(params)):
             param_set[list(params.keys())[j]] = param[j]
 
-        # selection using the mean repetead hold out
-        mean_repeated_valid_losses = 0
-        for j in range(repeat):
-            train_data, train_labels = shuffle(train_data, train_labels)
-            valid_data, valid_labels = shuffle(valid_data, valid_labels)
+        # k-fold cross validation
+        kfold_valid_losses = 0
+        ksize = math.floor(len(train_data)/kfold)
+        for j in range(kfold):
             model = DeepNeuralNetwork(**param_set)
-            model.fit(train_data, train_labels, valid_data, valid_labels)
-            mean_repeated_valid_losses += np.min(model.valid_losses)
-        
+            train_data_part = np.concatenate((train_data[:j*ksize], train_data[:(j+1)*ksize]), axis=0)
+            train_labels_part = np.concatenate((train_labels[:j*ksize], train_labels[:(j+1)*ksize]), axis=0)
+            valid_data_part = train_data[j*ksize:(j+1)*ksize]
+            valid_labels_part = train_labels[j*ksize:(j+1)*ksize]
+            model.fit(train_data_part, train_labels_part, valid_data_part, valid_labels_part)
+            kfold_valid_losses += model.valid_losses[-1]
+       
         # append in the list
         model_info = {
             'params': param_set,
-            'valid_loss': mean_repeated_valid_losses/repeat,
+            'valid_loss': kfold_valid_losses/kfold,
         }
         best_params.append(model_info)
 

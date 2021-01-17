@@ -1,7 +1,27 @@
 import numpy as np
 
 
-class DeepNeuralNetwork():
+"""
+This script contains the neural network implementation using 3 classes 
+
+    DeepNeuralNetwork, neural network implementation from scratch, functionalities:
+        feedforward()   - feedforward the input data through the network
+        backpropagate() - backpropagation algorithm through the network
+        fit()           - train and validate the network using data
+        get_loss()      - calculate the loss
+        get_accuracy()  - calculate the accuracy (classification problem)
+
+    Layer, layer componenet for the network, functionalities:
+        init_weights()      - initialize the weights of the layer
+        feedforward()       - feedforward the input data through the layer
+        backpropagate()     - compute the error term of the layer using the backpropagation algorithm
+        update_weights()    - update the weights using the backpropagation algorithm
+
+    ActFunctions, contain activation functions and its corresponding derivatives
+"""
+
+
+class DeepNeuralNetwork:
     """
     DeepNeuralNetwork is a implementation of the Neural Network used for Deep Learning
     """
@@ -77,7 +97,7 @@ class DeepNeuralNetwork():
             return np.mean(np.sqrt(np.sum(np.square(y_true - y_out), axis=1)))
 
     def get_accuracy(self, y_true, y_out):
-        """Compute the accuracy score (classification problem)"""
+        """Compute the accuracy score (only classification problem)"""
         if self.regression:
             return
         y_out = np.around(y_out)
@@ -99,7 +119,6 @@ class Layer:
         if weight_init == 'default':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(1/dim_out)
             self.b = np.zeros([1, dim_out])
-            # self.b = np.random.randn(1, dim_out)*np.sqrt(1/dim_out)
         if weight_init == 'xav':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(6/dim_in+dim_out)
             self.b = np.zeros([1, dim_out])

@@ -3,8 +3,17 @@ from numpy import genfromtxt
 from sklearn.preprocessing import normalize
 
 
+"""
+This script contains 2 utility methods for reading data:
+
+    load_monk() - load the monk data by encoding features
+
+    lond_cup()  - load the CUP data
+"""
+
+
 def load_monk(file_, filetype):
-    ''''''
+    """Load the monk data by encoding features"""
     filename = "./data/monk/monks-{}.{}".format(file_, filetype)
 
     # encode function for monk data
@@ -41,8 +50,8 @@ def load_monk(file_, filetype):
 
     return data, labels
 
-def load_cup(file_name, ts_percentage=0.17):
-    ''''''
+def load_cup(file_name, ts_percentage=0.20):
+    """Load the CUP data"""
     # read and preprocess data
     data = genfromtxt(file_name, delimiter=',')[:, 1:]
 
