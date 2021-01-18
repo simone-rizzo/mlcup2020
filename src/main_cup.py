@@ -4,11 +4,11 @@ import numpy as np
 
 # params_grid = {
 #     'layer_sizes': [[10, 100, 50, 2]],
-#     'ETA': list(np.linspace(0.001, 0.01, 3)),
-#     'LAMBDA': list(np.linspace(0.00001, 0.0001, 3)),
-#     'ALPHA': list(np.linspace(0.8, 0.9, 2)),
+#     'ETA': list(np.linspace(0.0005, 0.005, 10)),
+#     'LAMBDA': list(np.linspace(0.00001, 0.0005, 5)),
+#     'ALPHA': list(np.linspace(0.1, 0.9, 9)),
 #     'act_out': ['iden'],
-#     'act_hidden': ['tanh', 'sigm', 'relu'],
+#     'act_hidden': ['leak'],
 #     'weight_init': ['default', 'xav', 'he'],
 #     'regression': [True],
 #     'epochs': [500],
@@ -17,14 +17,14 @@ import numpy as np
 
 params_grid = {
     'layer_sizes': [[10, 100, 50, 2]],
-    'ETA': list(np.linspace(0.0001, 0.001, 5)),
-    'LAMBDA': list(np.linspace(0.00001, 0.0001, 5)),
-    'ALPHA': list(np.linspace(0.1, 0.9, 5)),
+    'ETA': [0.0005],
+    'LAMBDA': [0.00005],
+    'ALPHA': [0.1],
     'act_out': ['iden'],
-    'act_hidden': ['tanh', 'leak', 'relu'],
-    'weight_init': ['default'],
+    'act_hidden': ['leak'],
+    'weight_init': ['default', 'xav', 'he'],
     'regression': [True],
-    'epochs': [10000],
+    'epochs': [500],
     'loss': ['MEE']
 }
 

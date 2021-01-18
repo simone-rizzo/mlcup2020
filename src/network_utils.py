@@ -38,8 +38,8 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
         ksize = math.floor(len(train_data)/kfold)
         for j in range(kfold):
             model = DeepNeuralNetwork(**param_set)
-            train_data_part = np.concatenate((train_data[:j*ksize], train_data[:(j+1)*ksize]), axis=0)
-            train_labels_part = np.concatenate((train_labels[:j*ksize], train_labels[:(j+1)*ksize]), axis=0)
+            train_data_part = np.concatenate((train_data[:j*ksize], train_data[(j+1)*ksize:]), axis=0)
+            train_labels_part = np.concatenate((train_labels[:j*ksize], train_labels[(j+1)*ksize:]), axis=0)
             valid_data_part = train_data[j*ksize:(j+1)*ksize]
             valid_labels_part = train_labels[j*ksize:(j+1)*ksize]
             model.fit(train_data_part, train_labels_part, valid_data_part, valid_labels_part)
@@ -57,21 +57,26 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
     return best_params[:topn]
 
 
-def model_assessment(best_param, train_data, train_labels, test_data, test_labels):
+def model_assessment(best_param, train_data, train_labels, test_data, test_labels, repeat=10):
     """Evaluate the final model on the test data"""
-    # fit model with train data + valid data
-    model = DeepNeuralNetwork(**best_param)
-    model.fit(train_data, train_labels)
+    loss = 0
+    accur = 0
+    model = None
+    for i in range(repeat):
+        # fit model with train data + valid data
+        model = DeepNeuralNetwork(**best_param)
+        model.fit(train_data, train_labels)
 
-    # compute output from model using test data
-    test_out = model.feedforward(test_data)
+        # compute output from model using test data
+        test_out = model.feedforward(test_data)
 
+        # compute loss and accur (accuracy will be computed only if classification problem)
+        loss += model.get_loss(test_labels, test_out)
+        accur += model.get_accuracy(test_labels, test_out)
+
+    print(f'Best model average test loss over { repeat } repetitions: { loss/repeat }')
     if not model.regression:
-        accur = model.get_accuracy(test_labels, test_out)
-        print(f'Best model accuracy: {accur}')
-    else:
-        loss = model.get_loss(test_labels, test_out)
-        print(f'Best model test loss: {loss}')
+        print(f'Best model average accuracy over { repeat } repetitions: { accur/repeat }')
 
     return model
 
