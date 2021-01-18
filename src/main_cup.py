@@ -9,7 +9,7 @@ params_grid = {
     'ALPHA': [0.7],
     'act_out': ['iden'],
     'act_hidden': ['tanh'],
-    'weight_init': ['default2'],
+    'weight_init': ['xav'],
     'regression': [True],
     'epochs': [10000],
     'loss': ['MEE']
