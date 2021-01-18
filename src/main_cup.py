@@ -2,27 +2,27 @@ from src.network_utils import model_selection, model_assessment, plot_models
 from src.load_data import load_cup
 import numpy as np
 
-# params_grid = {
-#     'layer_sizes': [[10, 100, 50, 2]],
-#     'ETA': list(np.linspace(0.001, 0.01, 3)),
-#     'LAMBDA': list(np.linspace(0.00001, 0.0001, 3)),
-#     'ALPHA': list(np.linspace(0.8, 0.9, 2)),
-#     'act_out': ['iden'],
-#     'act_hidden': ['tanh', 'sigm', 'relu'],
-#     'weight_init': ['default', 'xav', 'he'],
-#     'regression': [True],
-#     'epochs': [500],
-#     'loss': ['MEE']
-# }
-
+"""params_grid = {
+    'layer_sizes': [[10, 100, 50, 2]],
+    'ETA': [0.00450],
+    'LAMBDA': [0.00001],
+    'ALPHA': [0.6],
+    'act_out': ['iden'],
+    'act_hidden': ['tanh'],
+    'weight_init': ['default'],
+    'regression': [True],
+    'epochs': [500],
+    'loss': ['MEE']
+}
+"""
 params_grid = {
-    'layer_sizes': [[10, 100, 50, 2], [10, 75, 2]],
+    'layer_sizes': [[10, 100, 50, 2]],
     'ETA': list(np.linspace(0.0005, 0.005, 10)),
-    'LAMBDA': list(np.linspace(0.00001, 0.0005, 5)),
+    'LAMBDA': list(np.linspace(0.00001, 0.0005, 10)),
     'ALPHA': list(np.linspace(0.1, 0.9, 9)),
     'act_out': ['iden'],
     'act_hidden': ['tanh'],
-    'weight_init': ['default', 'xav', 'he'],
+    'weight_init': ['default'],
     'regression': [True],
     'epochs': [500],
     'loss': ['MEE']
