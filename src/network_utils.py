@@ -25,6 +25,7 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
     list_params = list(product(*list(params.values())))
     best_params = []
 
+
     # grid search
     for i, param in enumerate(list_params):
         print("gridsearch {}/{}".format(i+1, len(list_params)), end="\r")
@@ -44,6 +45,8 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
             valid_labels_part = train_labels[j*ksize:(j+1)*ksize]
             model.fit(train_data_part, train_labels_part, valid_data_part, valid_labels_part)
             kfold_valid_losses += model.valid_losses[-1]
+            print(model.valid_losses[-1])
+            plt.plot(model.valid_losses)
        
         # append in the list
         model_info = {
@@ -51,6 +54,7 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
             'valid_loss': kfold_valid_losses/kfold,
         }
         best_params.append(model_info)
+        plt.show()
 
     # sort and return topn in the list
     best_params = sorted(best_params, key=lambda k: k['valid_loss'])
