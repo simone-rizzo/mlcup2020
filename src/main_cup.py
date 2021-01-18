@@ -11,7 +11,7 @@ params_grid = {
     'act_hidden': ['tanh'],
     'weight_init': ['default2'],
     'regression': [True],
-    'epochs': [2000],
+    'epochs': [10000],
     'loss': ['MEE']
 }
 """params_grid = {
