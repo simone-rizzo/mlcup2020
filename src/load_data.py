@@ -50,7 +50,7 @@ def load_monk(file_, filetype):
 
     return data, labels
 
-def load_cup(file_name, ts_percentage=0.20):
+def load_cup(file_name, ts_percentage=0.10):
     """Load the CUP data"""
     # read and preprocess data
     data = genfromtxt(file_name, delimiter=',')[:, 1:]

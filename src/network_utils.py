@@ -83,25 +83,29 @@ def model_assessment(best_param, train_data, train_labels, test_data, test_label
 
 def ensemble_assessment(best_params, train_data, train_labels, test_data, test_labels):
     """Evaluate the n-final model on the test data"""
-    loss = 0
-    accur = 0
-    model = None
-    for i in range(len(best_params)):
-        # fit model with train data + valid data
+    # fit the first model with train data + valid data
+    model = DeepNeuralNetwork(**best_params[0]['params'])
+    model.fit(train_data, train_labels)
+    mean_test_out = model.feedforward(test_data) 
+
+    # fit the other models with train data + valid data
+    for i in range(1, len(best_params)):
         model = DeepNeuralNetwork(**best_params[i]['params'])
         model.fit(train_data, train_labels)
-
-        # compute output from model using test data
         test_out = model.feedforward(test_data)
+        mean_test_out += test_out
 
-        # compute loss and accur (accuracy will be computed only if classification problem)
-        loss += model.get_loss(test_labels, test_out)
-        accur += model.get_accuracy(test_labels, test_out)
-
+    # compute loss and accur (accuracy will be computed only if it is a classification problem)
+    # the mean_test_out is the mean of all the best_params models results
+    # the loss is computed by using the mean_test_out
     n_models = len(best_params)
-    print(f'Ensemble average test loss over { n_models } repetitions: { loss/n_models }')
+    mean_test_out /= n_models
+    loss = model.get_loss(test_labels, mean_test_out)
+    accur = model.get_accuracy(test_labels, mean_test_out)
+
+    print(f'Ensemble average test loss over { n_models } models: { loss }')
     if not model.regression:
-        print(f'Ensemble average accuracy over { n_models } repetitions: { accur/n_models }')
+        print(f'Ensemble average accuracy over { n_models } models: { accur }')
 
 
 def plot_models(params, train_data, train_labels):

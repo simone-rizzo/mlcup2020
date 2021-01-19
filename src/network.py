@@ -118,7 +118,7 @@ class Layer:
         """Initialize the weights of the layer"""
         if weight_init == 'default':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(2/dim_out)
-            self.b = np.random.randn(1, dim_out) * np.sqrt(2/dim_out)
+            self.b = np.random.randn(1, dim_out)*np.sqrt(2/dim_out)
         if weight_init == 'xav':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(6/dim_in+dim_out)
             self.b = np.zeros([1, dim_out])

@@ -21,7 +21,7 @@ params_grid = {
     'LAMBDA': [0.00005],
     'ALPHA': [0.1],
     'act_out': ['iden'],
-    'act_hidden': ['leak'],
+    'act_hidden': ['tanh'],
     'weight_init': ['default', 'xav', 'he'],
     'regression': [True],
     'epochs': [500],
@@ -32,9 +32,11 @@ filename = "./data/cup/ML-CUP20-TR.csv"
 train_data, train_labels, test_data, test_labels = load_cup(filename)
 
 best_params = model_selection(params_grid, train_data, train_labels, topn=9)
-# best_model = model_assessment(best_params[0]['params'], train_data, train_labels, test_data, test_labels)
+# best_model = model_assessment(best_params[0], train_data, train_labels, test_data, test_labels)
+# best_model = ensemble_assessment(best_params, train_data, train_labels, test_data, test_labels)
 plot_models(best_params, train_data, train_labels)
 print(f'Best model parameters { best_params[0] }')
+print(f'Best model parameters { best_params }')
 
 # uncomment if want to save the result
 # change number to save a new configuration
