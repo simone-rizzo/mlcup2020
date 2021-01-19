@@ -42,7 +42,7 @@ class DeepNeuralNetwork:
 
         assert self.loss in ['MSE', 'MEE']
         assert act_out in ['iden', 'sigm']
-        assert act_hidden in ['relu', 'leak', 'sigm', 'tanh']
+        assert act_hidden in ['relu', 'sigm', 'tanh']
         assert weight_init in ['default', 'xav', 'he']
 
     def feedforward(self, x):
@@ -117,8 +117,8 @@ class Layer:
     def init_weights(self, dim_in, dim_out, weight_init):
         """Initialize the weights of the layer"""
         if weight_init == 'default':
-            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(1/dim_out)
-            self.b = np.zeros([1, dim_out])
+            self.w = np.random.randn(dim_in, dim_out)*np.sqrt(2/dim_out)
+            self.b = np.random.randn(1, dim_out) * np.sqrt(2/dim_out)
         if weight_init == 'xav':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(6/dim_in+dim_out)
             self.b = np.zeros([1, dim_out])
@@ -167,8 +167,6 @@ class ActFunctions:
             return 1 / (1 + np.exp(-x))
         elif self.name == 'relu':
             return np.maximum(x, 0)
-        elif self.name == 'leak':
-            return np.where(x > 0, x, x * 0.1)
         elif self.name == 'iden':
             return x
         elif self.name == 'tanh':
@@ -180,8 +178,6 @@ class ActFunctions:
             return self.function(x) * (1 - self.function(x))
         elif self.name == 'relu':
             return np.greater(x, 0)
-        elif self.name == 'leak':
-            return np.where(x > 0, 1, 0.1)
         elif self.name == 'iden':
             return 1
         elif self.name == 'tanh':
