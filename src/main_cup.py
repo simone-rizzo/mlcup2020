@@ -1,4 +1,4 @@
-from network_utils import model_selection, model_assessment, plot_models
+from network_utils import ensemble_assessment, model_selection, model_assessment, plot_models
 from load_data import load_cup
 import numpy as np
 
@@ -35,3 +35,9 @@ best_params = model_selection(params_grid, train_data, train_labels, topn=9)
 # best_model = model_assessment(best_params[0]['params'], train_data, train_labels, test_data, test_labels)
 plot_models(best_params, train_data, train_labels)
 print(f'Best model parameters { best_params[0] }')
+
+# uncomment if want to save the result
+# change number to save a new configuration
+# config = 0
+# f = open(f"cup-{ config }-configuration.txt", "w")
+# f.write('\n'.join([str(param) for param in best_params]))
