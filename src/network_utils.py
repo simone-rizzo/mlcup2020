@@ -108,7 +108,7 @@ def ensemble_assessment(best_params, train_data, train_labels, test_data, test_l
         print(f'Ensemble average accuracy over { n_models } models: { accur }')
 
 
-def plot_models(params, train_data, train_labels):
+def plot_models(params, train_data, train_labels, name):
     """Create a grid-plot of n-models by plotting their training and validation losses"""
     train_data, valid_data, train_labels, valid_labels = train_test_split(
         train_data, train_labels, test_size=0.3)
@@ -131,4 +131,6 @@ def plot_models(params, train_data, train_labels):
             r += 1
             c = 0
 
+    plt.gcf().set_size_inches((30, 20), forward=False)
+    plt.savefig(f"./plots/{ name }", bbox_inches='tight')
     plt.show()

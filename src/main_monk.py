@@ -18,10 +18,12 @@ test_data, test_labels = load_monk(monk, 'test')
 best_params = model_selection(params_grid, train_data, train_labels, topn=9)
 # best_model = model_assessment(best_params[0], train_data, train_labels, test_data, test_labels)
 # best_model = ensemble_assessment(best_params, train_data, train_labels, test_data, test_labels)
-plot_models(best_params, train_data, train_labels)
+plot_models(best_params, train_data, train_labels, f"monk-{ monk }.pdf")
 print(f'Best model parameters { best_params[0] }')
 print(f'Best model parameters { best_params }')
 
 # uncomment if want to save the result
 # f = open(f"monk-{ monk }-configuration.txt", "w")
 # f.write('\n'.join([str(param) for param in best_params]))
+# f.write('\n')
+# f.write(str(np.mean([float(param['valid_loss']) for param in best_params])))

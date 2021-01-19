@@ -43,3 +43,5 @@ print(f'Best model parameters { best_params }')
 # config = 0
 # f = open(f"cup-{ config }-configuration.txt", "w")
 # f.write('\n'.join([str(param) for param in best_params]))
+# f.write('\n')
+# f.write(np.mean([float(param['valid_loss']) for param in best_params]))
