@@ -17,15 +17,15 @@ import matplotlib.pyplot as plt
 
 params_grid = {
     'layer_sizes': [17, 4, 1],
-    'ETA': 0.8,
-    'LAMBDA': 0.001,
-    'ALPHA': 0.9,
+    'ETA': 0.1,
+    'LAMBDA': 0,
+    'ALPHA': 0.8,
     'weight_init': 'monk',
-    'act_hidden': 'tanh',
+    'act_hidden': 'relu',
     'epochs': 400,
 }
 
-monk = 1
+monk = 3
 train_data, train_labels = load_monk(monk, 'train')
 test_data, test_labels = load_monk(monk, 'test')
 
@@ -56,12 +56,14 @@ _, axs = plt.subplots(1, 2)
 axs[0].plot(np.array(best_model.train_losses), 'b-', label='Train Loss')
 axs[0].plot(np.array(best_model.valid_losses), 'r--', label='Valid Loss')
 axs[0].set(xlabel='Ephocs', ylabel='Loss')
-axs[0].legend()
+axs[0].set_title('MSE', fontsize=15)
+axs[0].legend(prop={'size': 15})
 
 axs[1].plot(np.array(best_model.train_accuracies), 'b-', label='Train Accuracy')
 axs[1].plot(np.array(best_model.valid_accuracies), 'r--', label='Valid Accuracy')
 axs[1].set(xlabel='Ephocs', ylabel='Accuracy')
-axs[1].legend()
-plt.gcf().set_size_inches((30, 10), forward=False)
+axs[1].set_title('Accuracy', fontsize=15)
+axs[1].legend(prop={'size': 15})
+plt.gcf().set_size_inches((20, 5), forward=False)
 plt.savefig(f"./plots/monk-{ monk }.pdf", bbox_inches='tight')
 plt.show()
