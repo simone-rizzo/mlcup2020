@@ -24,7 +24,7 @@ params_grid = {
     'act_hidden': ['tanh'],
     'weight_init': ['default'],
     'regression': [True],
-    'epochs': [750, 1000, 1250],
+    'epochs': [1250],
     'loss': ['MEE']
 }
 
@@ -39,7 +39,7 @@ print(f'Best model parameters { best_params }')
 
 # uncomment if want to save the result
 # change number to save a new configuration
-config = 3.2000
+config = 6.1000
 f = open(f"cup-{ config }-configuration.txt", "w")
 f.write('\n'.join([str(param) for param in best_params]))
 f.write('\n')

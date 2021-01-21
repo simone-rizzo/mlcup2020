@@ -40,14 +40,15 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
         ksize = math.floor(len(train_data)/kfold)
         for j in range(kfold):
             model = DeepNeuralNetwork(**param_set)
+            regression = model.regression
             train_data_part = np.concatenate((train_data[:j*ksize], train_data[(j+1)*ksize:]), axis=0)
             train_labels_part = np.concatenate((train_labels[:j*ksize], train_labels[(j+1)*ksize:]), axis=0)
             valid_data_part = train_data[j*ksize:(j+1)*ksize]
             valid_labels_part = train_labels[j*ksize:(j+1)*ksize]
             model.fit(train_data_part, train_labels_part, valid_data_part, valid_labels_part)
             kfold_valid_losses += model.valid_losses[-1]
-            kfold_valid_accuracies += model.valid_accuracies[-1]
-            regression = model.regression
+            if not regression:
+                kfold_valid_accuracies += model.valid_accuracies[-1]
        
         # append in the list
         model_info = {

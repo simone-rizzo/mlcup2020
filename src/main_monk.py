@@ -5,37 +5,42 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import matplotlib.pyplot as plt
 
-params_grid = {
-    'layer_sizes': [[17, 4, 1]],
-    'ETA': list(np.linspace(0.1, 0.9, 9)),
-    'LAMBDA': [0],
-    'ALPHA': list(np.linspace(0.1, 0.9, 9)),
-    'weight_init': ['monk'],
-    'act_hidden': ['relu', 'sigm', 'tanh'],
-    'epochs': [400],
-}
-
 # params_grid = {
 #     'layer_sizes': [[17, 4, 1]],
-#     'ETA': list(np.linspace(0.1, 0.5, 5)),
+#     'ETA': list(np.linspace(0.1, 0.9, 9)),
 #     'LAMBDA': [0],
-#     'ALPHA': list(np.linspace(0.5, 0.9, 5)),
+#     'ALPHA': list(np.linspace(0.1, 0.9, 9)),
 #     'weight_init': ['monk'],
-#     'act_hidden': ['sigm', 'tanh', 'relu'],
-#     'epochs': [1000],
+#     'act_hidden': ['relu', 'sigm', 'tanh'],
+#     'epochs': [400],
 # }
+
+params_grid = {
+    'layer_sizes': [17, 4, 1],
+    'ETA': 0.8,
+    'LAMBDA': 0.001,
+    'ALPHA': 0.9,
+    'weight_init': 'monk',
+    'act_hidden': 'tanh',
+    'epochs': 400,
+}
 
 monk = 1
 train_data, train_labels = load_monk(monk, 'train')
 test_data, test_labels = load_monk(monk, 'test')
 
-best_params = model_selection(params_grid, train_data, train_labels, topn=9, kfold=4)
-
 # train the best model
 train_data, valid_data, train_labels, valid_labels = train_test_split(
     train_data, train_labels, test_size=0.2)
-best_model = DeepNeuralNetwork(**best_params[0]['params'])
+best_model = DeepNeuralNetwork(**params_grid)
 best_model.fit(train_data, train_labels, valid_data, valid_labels)
+test_out = best_model.feedforward(test_data)
+
+print(f"Model valid loss: { best_model.valid_losses[-1] }")
+print(f"Model valid accuracy: { best_model.valid_accuracies[-1] }")
+
+print(f"Model test loss: { best_model.get_loss(test_labels, test_out) }")
+print(f"Model test accuracy: { best_model.get_accuracy(test_labels, test_out) }")
 
 # best_model = model_assessment(best_params, train_data, train_labels, test_data, test_labels)
 # best_model = ensemble_assessment(best_params, train_data, train_labels, test_data, test_labels)
@@ -44,9 +49,7 @@ best_model.fit(train_data, train_labels, valid_data, valid_labels)
 
 # uncomment if want to save the result
 f = open(f"monk-{ monk }-configuration.txt", "w")
-f.write('\n'.join([str(param) for param in best_params]))
-f.write('\n')
-f.write(str(np.mean([float(param['valid_loss']) for param in best_params])))
+f.write(str(params_grid))
 
 # plot and save models
 _, axs = plt.subplots(1, 2)
