@@ -43,7 +43,7 @@ class DeepNeuralNetwork:
         assert self.loss in ['MSE', 'MEE']
         assert act_out in ['iden', 'sigm']
         assert act_hidden in ['relu', 'sigm', 'tanh']
-        assert weight_init in ['default', 'xav', 'he']
+        assert weight_init in ['monk', 'default', 'xav', 'he']
 
     def feedforward(self, x):
         """Compute the feedforward by passing the input throught every layer"""
@@ -116,6 +116,9 @@ class Layer:
 
     def init_weights(self, dim_in, dim_out, weight_init):
         """Initialize the weights of the layer"""
+        if weight_init == 'monk':
+            self.w = np.random.randn(dim_in, dim_out)*0.003
+            self.b = np.zeros([1, dim_out])
         if weight_init == 'default':
             self.w = np.random.randn(dim_in, dim_out)*np.sqrt(2/dim_out)
             self.b = np.random.randn(1, dim_out)*np.sqrt(2/dim_out)

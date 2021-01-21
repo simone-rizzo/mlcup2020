@@ -24,6 +24,7 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
     """Select the best hyperparameters using gridsearch + k-fold cross validation"""
     list_params = list(product(*list(params.values())))
     best_params = []
+    regression = False
 
     # grid search
     for i, param in enumerate(list_params):
@@ -35,6 +36,7 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
 
         # k-fold cross validation
         kfold_valid_losses = 0
+        kfold_valid_accuracies = 0
         ksize = math.floor(len(train_data)/kfold)
         for j in range(kfold):
             model = DeepNeuralNetwork(**param_set)
@@ -44,16 +46,22 @@ def model_selection(params, train_data, train_labels, topn=9, kfold=4):
             valid_labels_part = train_labels[j*ksize:(j+1)*ksize]
             model.fit(train_data_part, train_labels_part, valid_data_part, valid_labels_part)
             kfold_valid_losses += model.valid_losses[-1]
+            kfold_valid_accuracies += model.valid_accuracies[-1]
+            regression = model.regression
        
         # append in the list
         model_info = {
             'params': param_set,
             'valid_loss': kfold_valid_losses/kfold,
+            'valid_accuracies': kfold_valid_accuracies/kfold
         }
         best_params.append(model_info)
 
     # sort and return topn in the list
-    best_params = sorted(best_params, key=lambda k: k['valid_loss'])
+    if regression:
+        best_params = sorted(best_params, key=lambda k: k['valid_loss'])
+    else:
+        best_params = sorted(best_params, key=lambda k: k['valid_accuracies'], reverse=True)
     return best_params[:topn]
 
 
@@ -108,10 +116,10 @@ def ensemble_assessment(best_params, train_data, train_labels, test_data, test_l
         print(f'Ensemble average accuracy over { n_models } models: { accur }')
 
 
-def plot_models(params, train_data, train_labels, name):
+def plot_models(params, train_data, train_labels, name, save=False):
     """Create a grid-plot of n-models by plotting their training and validation losses"""
     train_data, valid_data, train_labels, valid_labels = train_test_split(
-        train_data, train_labels, test_size=0.3)
+        train_data, train_labels, test_size=0.2)
 
     _, axs = plt.subplots(3, 3)
     r = c = 0
@@ -121,7 +129,7 @@ def plot_models(params, train_data, train_labels, name):
         model.fit(train_data, train_labels, valid_data, valid_labels)
         axs[r, c].plot(np.array(model.train_losses), 'b-', label='Train Loss')
         axs[r, c].plot(np.array(model.valid_losses), 'r--', label='Valid Loss')
-        axs[r, c].set_title(f"MODEL: { param['layer_sizes'] } ETA: { param['ETA'] } LAMBDA: { param['LAMBDA'] } ALPHA: { param['ALPHA'] } ACT: { param['act_hidden'] }", fontsize=8)
+        axs[r, c].set_title(f"MODEL: { param['layer_sizes'] } ETA: { param['ETA'] } LAMBDA: { param['LAMBDA'] } ALPHA: { param['ALPHA'] } ACT: { param['act_hidden'] } EPOCHS: { param['epochs'] }", fontsize=8)
         axs[r, c].set(xlabel='Ephocs', ylabel='Loss')
         axs[r, c].legend()
 
@@ -132,5 +140,6 @@ def plot_models(params, train_data, train_labels, name):
             c = 0
 
     plt.gcf().set_size_inches((30, 20), forward=False)
-    plt.savefig(f"./plots/{ name }", bbox_inches='tight')
+    if save:
+        plt.savefig(f"./plots/{ name }", bbox_inches='tight')
     plt.show()
