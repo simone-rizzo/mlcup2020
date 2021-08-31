@@ -70,12 +70,15 @@ class DeepNeuralNetwork:
 
         for iteration in range(self.epochs):
             # print("iteration {}/{}".format(iteration + 1, self.epochs), end="\r")
-
-            # train feedforward and backpropagation
-            train_out = self.feedforward(train_data)
-            diff = train_label - train_out
-            self.backpropagate(diff)
-            self.train_losses.append(self.get_loss(train_label, train_out))
+            for idx, sgd_data in enumerate(train_data):
+                single_label = train_label[idx]
+                single_label = np.expand_dims(single_label, axis=0)
+                sgd_data = np.expand_dims(sgd_data, axis=0)
+                # train feedforward and backpropagation
+                train_out = self.feedforward(sgd_data)
+                diff = single_label - train_out
+                self.backpropagate(diff)
+                self.train_losses.append(self.get_loss(single_label, train_out))
 
             # validation feedforward
             valid_out = None
@@ -152,8 +155,8 @@ class Layer:
         self.old_delta_w = delta_w
 
         # update weights
-        self.w += delta_w * (1/self.delta.shape[0]) 
-        self.b += delta_b * (1/self.delta.shape[0]) 
+        self.w += delta_w * (1/1) #self.delta.shape[0]) 
+        self.b += delta_b * (1/1) #self.delta.shape[0]) 
 
 
 class ActFunctions:
