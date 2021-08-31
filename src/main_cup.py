@@ -1,42 +1,49 @@
-from src.grid_search import model_selection, model_assessment
-from src.load_data import load_monk, load_cup
-from src.network import DeepNeuralNetwork
-import matplotlib.pyplot as plt
+from network_utils import ensemble_assessment, model_selection, model_assessment, plot_models
+from load_data import load_cup
 import numpy as np
-from sklearn.model_selection import train_test_split
 
-"""params = {
-    'layer_sizes': [10, 100, 50, 2],
-    'act_hidden': 'relu',
-    'act_out': 'iden',
-    'ETA': 0.001,
-    'LAMBDA': 0.01,
-    'ALPHA': 0.6,
-    'WEIGHT_INI': 'he',
-    'regression': True,
-    'epochs': 500
-}"""
-params = {
-    'layer_sizes': [10, 100, 50, 2],
-    'act_hidden': 'tanh',
-    'act_out': 'iden',
-    'ETA': 0.00450,
-    'LAMBDA': 0.00001,
-    'ALPHA': 0.6,
-    'WEIGHT_INI': 'he',
-    'regression': True,
-    'epochs': 10000,
-    'loss': 'MEE'
+# params_grid = {
+#     'layer_sizes': [[10, 100, 50, 2]],
+#     'ETA': list(np.linspace(0.0005, 0.005, 10)),
+#     'LAMBDA': list(np.linspace(0.00001, 0.0005, 5)),
+#     'ALPHA': list(np.linspace(0.1, 0.9, 9)),
+#     'act_out': ['iden'],
+#     'act_hidden': ['leak'],
+#     'weight_init': ['default', 'xav', 'he'],
+#     'regression': [True],
+#     'epochs': [500],
+#     'loss': ['MEE']
+# }
+
+params_grid = {
+    'layer_sizes': [[10, 70, 30, 2]],
+    'ETA': [0.003, 0.004, 0.005, 0.006, 0.007],
+    'LAMBDA': [0.00001, 0.0001, 0.001, 0.01],
+    'ALPHA': [0.5, 0.7, 0.9],
+    'act_out': ['iden'],
+    'act_hidden': ['tanh'],
+    'weight_init': ['default'],
+    'regression': [True],
+    'epochs': [1250],
+    'loss': ['MEE']
 }
-np.random.seed(0)
-filename = "../data/cup/ML-CUP20-TR.csv"
-tr_data, tr_label, test_data, test_label = load_cup(filename)
-trd, vldata, trlb, vllbl = train_test_split(tr_data, tr_label, test_size=0.20)
-nn = DeepNeuralNetwork(**params)
-nn.fit(trd, trlb, vldata, vllbl)
-plt.plot(nn.train_losses)
-plt.plot(nn.valid_losses)
-plt.show()
-print(nn.train_losses[-1])
-print(nn.valid_losses[-1])
-# model_assessment(params, tr_data, tr_label, tr_data, tr_label)
+
+filename = "./data/cup/ML-CUP20-TR.csv"
+train_data, train_labels, test_data, test_labels = load_cup(filename)
+
+best_params = model_selection(params_grid, train_data, train_labels, topn=9)
+# best_model = model_assessment(best_params[0], train_data, train_labels, test_data, test_labels)
+# best_model = ensemble_assessment(best_params, train_data, train_labels, test_data, test_labels)
+print(f'Best model parameters { best_params[0] }')
+print(f'Best model parameters { best_params }')
+
+# uncomment if want to save the result
+# change number to save a new configuration
+config = 6.1000
+f = open(f"cup-{ config }-configuration.txt", "w")
+f.write('\n'.join([str(param) for param in best_params]))
+f.write('\n')
+f.write(str(np.mean([float(param['valid_loss']) for param in best_params])))
+
+# plot and save model
+plot_models(best_params, train_data, train_labels, f"cup-{ config }.pdf", save=True)

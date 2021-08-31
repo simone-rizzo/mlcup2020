@@ -1,70 +1,75 @@
 import numpy as np
-import random
-import operator
-from numpy import linalg as LA
 from numpy import genfromtxt
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import normalize
 
 
-def load_monk(file_, filetype, encodeLabel=False):
-    filename = "../data/monk/monks-{}.{}".format(file_, filetype)
+"""
+This script contains 2 utility methods for reading data:
 
-    def encode(vector, label=False):
-        if label:
-            twoFeatures = {'0': [1, 0], '1': [0, 1]}
-            return twoFeatures[str(vector)]
-        else:
-            retVector = []
-            twoFeatures = {'1': [1, 0], '2': [0, 1]}
-            threeFeatures = {'1': [1, 0, 0], '2': [0, 1, 0], '3': [0, 0, 1]}
-            fourFeatures = {'1': [1, 0, 0, 0], '2': [
-                0, 1, 0, 0], '3': [0, 0, 1, 0], '4': [0, 0, 0, 1]}
-            encodingDict = {
-                '0': threeFeatures,
-                '1': threeFeatures,
-                '2': twoFeatures,
-                '3': threeFeatures,
-                '4': fourFeatures,
-                '5': twoFeatures
-            }
-            for idx, val in enumerate(vector):
-                retVector.extend(encodingDict[str(idx)][str(val)])
-            return retVector
+    load_monk() - load the monk data by encoding features
+
+    lond_cup()  - load the CUP data
+"""
+
+
+def load_monk(file_, filetype):
+    """Load the monk data by encoding features"""
+    filename = "./data/monk/monks-{}.{}".format(file_, filetype)
+
+    # encode function for monk data
+    def encode(vector):
+        two_feat = {'1': [1, 0], '2': [0, 1]}
+        three_feat = {'1': [1, 0, 0], '2': [0, 1, 0], '3': [0, 0, 1]}
+        four_feat = {'1': [1, 0, 0, 0], '2': [
+            0, 1, 0, 0], '3': [0, 0, 1, 0], '4': [0, 0, 0, 1]}
+        encode_dict = {
+            '0': three_feat,
+            '1': three_feat,
+            '2': two_feat,
+            '3': three_feat,
+            '4': four_feat,
+            '5': two_feat
+        }
+        encoded = []
+        
+        for i, val in enumerate(vector):
+            encoded.extend(encode_dict[str(i)][str(val)])
+        assert len(encoded) == 17
+        return encoded
 
     with open(filename) as f:
-        data_ = []
+        data = []
         labels = []
         for line in f.readlines():
             rows = [x for x in line.split(' ')][2:-1]
-            temp = encode(rows)
-            assert len(temp) == 17
-            data_.append(encode(rows))
-            label = line[1]
-            if encodeLabel:
-                label = encode(label, label=True)
-            else:
-                label = [label]
-            labels.append(label)
+            data.append(encode(rows))
+            labels.append([line[1]])
 
-        data_ = np.array(data_, dtype='float16')
+        data = np.array(data, dtype='float16')
         labels = np.array(labels, dtype='float16')
 
-    return data_, labels
+    return data, labels
 
+def load_cup(file_name, ts_percentage=0.10):
+    """Load the CUP data"""
+    # read and preprocess data
+    data = genfromtxt(file_name, delimiter=',')[:, 1:]
 
-def load_cup(file_name, ts_percentage=0.17, ):
-    my_data = genfromtxt(file_name, delimiter=',') #Read the file
-    my_data = my_data[:, 1:]    #Remove first column
-    ts_size = int(np.round(my_data.shape[0]*ts_percentage)) #Compute the percentage of datas to take for TS, with step size
-    step_size = int(np.round(my_data.shape[0]/ts_size))
-    ts_data = np.zeros(shape=(ts_size, my_data.shape[1]))
+    # separate train and test
+    ts_size = int(np.round(data.shape[0]*ts_percentage))
+    step_size = int(np.round(data.shape[0]/ts_size))
+    ts_data = np.zeros(shape=(ts_size, data.shape[1]))
     for i in range(ts_size):
-        ts_data[i] = (my_data[i+step_size-1])
-        my_data = np.delete(my_data, i+step_size-1, 0) #Delete ts_size datas from DS
-    train_data = my_data[:, :-2] #Remove last 2 columns
-    train_labels = my_data[:, -2:] #Keep only last 2 columns
-    test_data = ts_data[:, :-2]
-    test_label = ts_data[:, -2:]
-    return train_data, train_labels, test_data, test_label
+        ts_data[i] = (data[i+step_size-1])
+        data = np.delete(data, i+step_size-1, 0)
 
+    # separate data and labels
+    train_data = data[:, :-2]
+    train_labels = data[:, -2:]
+    test_labels = ts_data[:, -2:]
+    test_data = ts_data[:, :-2]
+
+    # train_data = normalize(train_data, axis=1, norm='l2')
+    # train_labels = normalize(train_labels, axis=1, norm='l2')
+
+    return train_data, train_labels, test_data, test_labels
