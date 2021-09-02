@@ -1,0 +1,1 @@
+{'layer_sizes': [17, 4, 1], 'ETA': 0.1, 'LAMBDA': 0.9, 'ALPHA': 0, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}

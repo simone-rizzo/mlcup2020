@@ -78,7 +78,10 @@ class DeepNeuralNetwork:
                 train_out = self.feedforward(sgd_data)
                 diff = single_label - train_out
                 self.backpropagate(diff)
-                self.train_losses.append(self.get_loss(single_label, train_out))
+            
+            # train loss
+            train_out = self.feedforward(train_data)
+            self.train_losses.append(self.get_loss(train_label, train_out))
 
             # validation feedforward
             valid_out = None
@@ -86,7 +89,7 @@ class DeepNeuralNetwork:
                 valid_out = self.feedforward(valid_data)
                 self.valid_losses.append(self.get_loss(valid_label, valid_out))
 
-            # train loss and accuracy 
+            # train and validation accuracy 
             if not self.regression:
                 self.train_accuracies.append(self.get_accuracy(train_label, train_out))
             if not self.regression and valid_out is not None:

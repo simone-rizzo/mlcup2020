@@ -1,0 +1,10 @@
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.30000000000000004, 'LAMBDA': 0, 'ALPHA': 0.6, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.2945738230946857, 'valid_accuracies': 0.6290322580645161}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.7000000000000001, 'LAMBDA': 0, 'ALPHA': 0.7000000000000001, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.3622466362817689, 'valid_accuracies': 0.6209677419354839}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.4, 'LAMBDA': 0, 'ALPHA': 0.9, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.35553926973615846, 'valid_accuracies': 0.6129032258064516}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.6, 'LAMBDA': 0, 'ALPHA': 0.9, 'weight_init': 'monk', 'act_hidden': 'tanh', 'epochs': 400}, 'valid_loss': 0.4023179660121368, 'valid_accuracies': 0.6048387096774194}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.8, 'LAMBDA': 0, 'ALPHA': 0.4, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.3683378395825542, 'valid_accuracies': 0.5967741935483871}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.9, 'LAMBDA': 0, 'ALPHA': 0.30000000000000004, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.3570197674207333, 'valid_accuracies': 0.5967741935483871}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.30000000000000004, 'LAMBDA': 0, 'ALPHA': 0.5, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.3486212159171939, 'valid_accuracies': 0.596774193548387}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.9, 'LAMBDA': 0, 'ALPHA': 0.8, 'weight_init': 'monk', 'act_hidden': 'relu', 'epochs': 400}, 'valid_loss': 0.3680988777263856, 'valid_accuracies': 0.5887096774193549}
+{'params': {'layer_sizes': [17, 4, 1], 'ETA': 0.7000000000000001, 'LAMBDA': 0, 'ALPHA': 0.9, 'weight_init': 'monk', 'act_hidden': 'tanh', 'epochs': 400}, 'valid_loss': 0.4023281163157063, 'valid_accuracies': 0.5887096774193548}
+0.36212039023192477

@@ -17,12 +17,12 @@ import matplotlib.pyplot as plt
 
 params_grid = {
     'layer_sizes': [17, 4, 1],
-    'ETA': 0.1,
+    'ETA': 0.01,
     'LAMBDA': 0,
-    'ALPHA': 0.8,
+    'ALPHA': 0.9,
     'weight_init': 'monk',
     'act_hidden': 'relu',
-    'epochs': 400,
+    'epochs': 100,
 }
 
 monk = 3
@@ -49,7 +49,7 @@ print(f"Model test accuracy: { best_model.get_accuracy(test_labels, test_out) }"
 
 # uncomment if want to save the result
 f = open(f"monk-{ monk }-configuration.txt", "w")
-f.write(str(params_grid))
+# f.write(str(params_grid))
 
 # plot and save models
 _, axs = plt.subplots(1, 2)
@@ -65,5 +65,5 @@ axs[1].set(xlabel='Ephocs', ylabel='Accuracy')
 axs[1].set_title('Accuracy', fontsize=15)
 axs[1].legend(prop={'size': 15})
 plt.gcf().set_size_inches((20, 5), forward=False)
-plt.savefig(f"./plots/monk-{ monk }.pdf", bbox_inches='tight')
+# plt.savefig(f"./plots/monk-{ monk }.pdf", bbox_inches='tight')
 plt.show()
