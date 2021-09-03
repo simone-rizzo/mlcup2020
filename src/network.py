@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.core.fromnumeric import shape
 
 
 """
@@ -26,13 +27,14 @@ class DeepNeuralNetwork:
     DeepNeuralNetwork is a implementation of the Neural Network used for Deep Learning
     """
 
-    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", weight_init="default", regression=False):
+    def __init__(self, layer_sizes, ETA, ALPHA=0, LAMBDA=0, epochs=500, act_hidden="relu", act_out="sigm", loss="MSE", weight_init="default", regression=False, BS=1):
         self.ETA = ETA
         self.ALPHA = ALPHA
         self.LAMBDA = LAMBDA
         self.epochs = epochs
         self.loss = loss
         self.regression = regression
+        self.BATCH_SIZE = BS
 
         self.layers = []
         for i in range(len(layer_sizes)-2):
@@ -67,16 +69,22 @@ class DeepNeuralNetwork:
         self.train_losses = []
         self.valid_accuracies = []
         self.valid_losses = []
+        self.BATCH_SIZE = train_data.shape[0] if (train_data.shape[0]<self.BATCH_SIZE) else self.BATCH_SIZE # control if batch size is greater than training set 
+
+        mb_cicle = train_data.shape[0]//self.BATCH_SIZE
+        mb_cicle = int(mb_cicle)+1 if mb_cicle*self.BATCH_SIZE != train_data.shape[0] else mb_cicle
 
         for iteration in range(self.epochs):
             # print("iteration {}/{}".format(iteration + 1, self.epochs), end="\r")
-            for idx, sgd_data in enumerate(train_data):
-                single_label = train_label[idx]
-                single_label = np.expand_dims(single_label, axis=0)
-                sgd_data = np.expand_dims(sgd_data, axis=0)
+            for i in range(mb_cicle):
+                ini = i*self.BATCH_SIZE
+                end = ini+self.BATCH_SIZE
+                mb_label = train_label[ini:end]
+                mb_data = train_data[ini:end]
+
                 # train feedforward and backpropagation
-                train_out = self.feedforward(sgd_data)
-                diff = single_label - train_out
+                train_out = self.feedforward(mb_data)
+                diff = mb_label - train_out
                 self.backpropagate(diff)
             
             # train loss
