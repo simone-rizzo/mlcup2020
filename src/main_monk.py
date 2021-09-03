@@ -23,7 +23,7 @@ params_grid = {
     'weight_init': 'monk',
     'act_hidden': 'relu',
     'epochs': 100,
-    'BS':5
+    'BS':1
 }
 
 monk = 3

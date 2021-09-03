@@ -166,8 +166,8 @@ class Layer:
         self.old_delta_w = delta_w
 
         # update weights
-        self.w += delta_w * (1/1) #self.delta.shape[0]) 
-        self.b += delta_b * (1/1) #self.delta.shape[0]) 
+        self.w += delta_w * (1/self.delta.shape[0]) 
+        self.b += delta_b * (1/self.delta.shape[0]) 
 
 
 class ActFunctions:
